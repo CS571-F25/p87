@@ -143,10 +143,90 @@
     justify-content: space-between;
   }
 
+
   .bus-card-right{
     padding: 15px;
-    background-color: transparent;
   }
+
+  .bus-card-destination {
+    margin-top: 10px;
+    font-family: "Mona Sans";
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  .bus-card-eta {
+    margin-top: 10px;
+    font-family: "Mona Sans";
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .bus-card-track {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-family: "Mona Sans";
+    color: #000;
+  }
+
+  @media screen and (max-width: 450px) {
+    .stop-inner {
+      width: 100vw;
+      max-width: none;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-sizing: border-box;
+    }
+
+    .bus-card-right{
+      padding: 15px;
+      padding-left: 1vw;
+      padding-right: 1vw;
+    }
+
+    .bus-card-destination {
+      margin-top: 12px;
+      font-family: "Mona Sans";
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .bus-card-eta {
+      margin-top: 12px;
+      font-family: "Mona Sans";
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .bus-card-route {
+      width: 37px;
+      border-radius: 5px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Mona Sans";
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .bus-card-track {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 6px 7px;
+    font-size: 13px;
+    font-family: "Mona Sans";
+    color: #000;
+  }
+  }
+
   
   .bus-card-top {
     height: 34px;
@@ -154,27 +234,17 @@
     justify-content: space-between;
   }
   
-  .bus-card-destination {
-    margin-top: 10px;
-    font-family: "Mona Sans";
-    font-size: 19px;
-    font-weight: 600;
-  }
   
   .bus-card-times {
     text-align: right;
     min-width: 70px;
   }
   
-  .bus-card-eta {
-    margin-top: 10px;
-    font-family: "Mona Sans";
-    font-size: 20px;
-    font-weight: 700;
-  }
+  
   
   .bus-card-clock {
     font-family: "Mona Sans";
+    margin-top: -12px;
     font-size: 13px;
     color: black;
     font-weight: 400;
@@ -189,11 +259,12 @@
   
   .bus-card-occupancy {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 8px;
   }
   
   .bus-card-dots {
+    margin-top: -6px;
     display: flex;
     gap: 3px;
     border-width: 1px;
@@ -213,20 +284,12 @@
   
   .bus-card-sub {
     font-family: "Mona Sans";
+    margin-top: -12px;
     font-size: 13px;
     font-weight: 300;
     color: black;
   }
   
-  .bus-card-track {
-    border-radius: 999px;
-    border: 1px solid #e5e7eb;
-    background: #ffffff;
-    padding: 6px 14px;
-    font-size: 14px;
-    font-family: "Mona Sans";
-    color: #000;
-  }
   
   /* misc states */
   

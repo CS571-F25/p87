@@ -227,7 +227,7 @@ export default function StopPage() {
                     </div>
                     <div className ="bus-card-right">
                         <button className="bus-card-track" type="button">
-                        Track
+                          Track
                         </button>
                     </div>
                     
