@@ -1,0 +1,273 @@
+/* src/Stop.css */
+
+.stop-root {
+    min-height: 100vh;
+    background: var(--bg, #ffffff);
+  }
+  
+  .stop-inner {
+    width: 100vw;
+    max-width: none;
+    margin: 0;
+    padding: 20px clamp(16px, 5vw, 48px) 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+  }
+  
+  /* top section under header */
+  
+  .stop-header-bar {
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .stop-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .stop-header-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  
+  .stop-header-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stop-header-title {
+    font-family: "Mona Sans";
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  
+  .stop-header-subtitle {
+    font-family: "Mona Sans";
+    font-size: 13px;
+    color: #4b5563;
+  }
+  
+  .stop-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .stop-add-btn {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .stop-save-btn {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  /* column labels */
+  
+  .stop-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: "Mona Sans";
+    font-size: 13px;
+    color: #4b5563;
+    padding: 0 4px;
+  }
+  
+  /* bus cards */
+  
+  .stop-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .bus-card {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    height: 66px;
+    border-radius: 5px;
+    background: #F6F6F6;
+
+    /* Slight Drop */
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.07);
+  }
+  
+  .bus-card-route {
+    width: 42px;
+    border-radius: 5px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Mona Sans";
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+  .bus-card-main {
+    width: 100%;
+    display: flex;
+  }
+
+  .bus-card-left{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .bus-card-right{
+    padding: 15px;
+    background-color: transparent;
+  }
+  
+  .bus-card-top {
+    height: 34px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .bus-card-destination {
+    margin-top: 10px;
+    font-family: "Mona Sans";
+    font-size: 19px;
+    font-weight: 600;
+  }
+  
+  .bus-card-times {
+    text-align: right;
+    min-width: 70px;
+  }
+  
+  .bus-card-eta {
+    margin-top: 10px;
+    font-family: "Mona Sans";
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .bus-card-clock {
+    font-family: "Mona Sans";
+    font-size: 13px;
+    color: black;
+    font-weight: 400;
+  }
+  
+  .bus-card-bottom {
+    height: 33px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .bus-card-occupancy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .bus-card-dots {
+    display: flex;
+    gap: 3px;
+    border-width: 1px;
+    border-color: black;
+  }
+  
+  .occ-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    background: #e5e7eb;
+  }
+  
+  .occ-dot-filled {
+    background: #5C5C5C;
+  }
+  
+  .bus-card-sub {
+    font-family: "Mona Sans";
+    font-size: 13px;
+    font-weight: 300;
+    color: black;
+  }
+  
+  .bus-card-track {
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-family: "Mona Sans";
+    color: #000;
+  }
+  
+  /* misc states */
+  
+  .stop-loading,
+  .stop-error,
+  .stop-empty {
+    font-family: "Mona Sans";
+    font-size: 14px;
+    color: #4b5563;
+  }
+  
+  /* end section + report card */
+  
+  .stop-end-label {
+    margin-top: 16px;
+    text-align: center;
+    font-family: "Mona Sans";
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .stop-report-card {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .stop-report-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid #111827;
+  }
+  
+  /* small tweak for footer on this page */
+  .routes-footer {
+    margin-top: 24px;
+  }
+  

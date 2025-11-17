@@ -1,0 +1,298 @@
+:root {
+    --bg: #ffffff;
+    --panel: #f6f6f6;
+    --border: #e5e7eb;
+    --shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+    --brand-red: #ff0000;
+    --text-main: #000000;
+    --text-muted: #4b5563;
+  }
+
+  
+  .home-root {
+    min-height: 100vh;
+    background: var(--bg);
+    box-sizing: border-box;
+  }
+  
+  /* Main content now takes full width */
+  .home-phone {
+    width: 100vw;
+    max-width: none;
+    margin: 0;
+    background: #ffffff;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 20px clamp(16px, 5vw, 48px) 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  
+  /* Header */
+  
+  .home-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .home-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .home-logo-square {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background: var(--brand-red);
+    background-image: url(./assets/btv2logowhite.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .home-wordmark{
+    display: flex;
+  }
+  
+  .home-logo-text-main{
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -0.75px;
+  }
+  .home-logo-text-sub {
+    padding-top: 2px;
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+    letter-spacing: -0.75px;
+  
+    /* WIDTH: 100% is normal, 125% is max for Mona Sans */
+    font-stretch: 1000%;
+  }
+  
+  
+  .home-logo-text-sub {
+    margin-top: -2px;
+  }
+  
+  .home-clock {
+    padding-top: 1px;
+    text-align: right;
+    min-width: 120px;
+  }
+  
+  .home-clock-date {
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 17px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 100%;
+    letter-spacing: -0.75px;
+  }
+  
+  .home-clock-time {
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 21px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -0.75px;
+  }
+  
+  /* Hero text */
+  
+  .home-hero {
+    margin-top: 4px;
+  }
+  
+  .home-hero-title {
+    padding-top: 2px;
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 25px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%;
+    letter-spacing: -0.75px;
+  }
+  
+  /* Cards */
+  
+  .home-card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .home-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--panel);
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.07);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  }
+  
+  .home-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+    background: #f3f4f6;
+  }
+  
+  .home-card-tall {
+    margin-top: 4px;
+  }
+  
+  .home-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    background: #e5e7eb;
+  }
+  
+  /* little variations so they don’t all look identical */
+  .home-card-icon-star {
+    background: radial-gradient(circle at 30% 20%, #facc15, #e5e7eb);
+    background-image: url(./assets/btclockicon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .home-card-icon-map {
+    background: radial-gradient(circle at 60% 30%, #38bdf8, #e5e7eb);
+    background-image: url(./assets/btv2logoblack.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .home-card-icon-location {
+    background: radial-gradient(circle at 40% 70%, #22c55e, #e5e7eb);
+    background-image: url(./assets/btv2locationarrowicon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .home-card-icon-saved {
+    background: radial-gradient(circle at 60% 60%, #fb7185, #e5e7eb);
+    background-image: url(./assets/btv2staricon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .home-card-icon-search {
+    background: radial-gradient(circle at 50% 50%, #a855f7, #e5e7eb);
+    background-image: url(./assets/btv2editicon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  
+  .home-card-title {
+    margin:0;
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%;
+    letter-spacing: -1%;
+  }
+  
+  /* Notice panels */
+  
+  .home-notice {
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  
+  .home-notice.secondary {
+    margin-top: -4px;
+  }
+  
+  .home-notice-title {
+    margin: 0 0 6px;
+    color: #000;
+    font-family: "Mona Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .home-notice-body {
+    margin: 0;
+    color: var(--text-muted);
+    font-family: "Mona Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 100%;
+  }
+  
+  /* Footer */
+  
+  .home-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+  
+  .home-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .home-logo-small-square {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: var(--brand-red);
+  }
+  
+  .home-footer-brand {
+    font-size: 18px;
+  }
+  
+  .home-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .home-footer-link {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+  
+  .home-footer-meta {
+    color: var(--text-muted);
+  }
+  
+  
