@@ -4,6 +4,7 @@ import "./Home.css";
 import RoutesPage from "./Routes.jsx";
 import MapPage from "./components/MapPage.jsx"; // ← use the dedicated MapPage
 import StopPage from "./StopPage.jsx";
+import RecentPage from "./Recent.jsx";
 
 
 // === HOME PAGE ===
@@ -47,7 +48,7 @@ function HomePage() {
 
         {/* Action cards */}
         <section className="home-card-grid">
-          <Link to="/map" className="home-card">
+          <Link to="/recent" className="home-card">
             <div className="home-card-icon home-card-icon-star" />
             <p className="home-card-title">View your recently visited stops</p>
           </Link>
@@ -128,6 +129,7 @@ export default function App() {
       <Route path="/map/:routeId" element={<MapPage />} />
       <Route path="/routes" element={<RoutesPage />} />
       <Route path="/stop/:stopId" element={<StopPage />} />   {/* 👈 new */}
+      <Route path="/recent" element={<RecentPage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>
 

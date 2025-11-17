@@ -13,17 +13,17 @@ const ROUTE_COLORS = {
   80: "#FF7300",
   81: "#00B7C8",
   82: "#BC009D",
-  84: "#C1C800"
+  84: "#C1C800",
 };
 
 function getRouteColor(code) {
-  return ROUTE_COLORS[code] || "#00";
+  return ROUTE_COLORS[code] || "#000000";
 }
 
 // format "20251115 21:43" -> "9:43 PM"
 function formatArrivalTime(predicted_time) {
   if (!predicted_time) return "";
-  const [datePart, timePart] = predicted_time.split(" ");
+  const [, timePart] = predicted_time.split(" ");
   if (!timePart) return "";
   const [hourStr, minuteStr] = timePart.split(":");
   const d = new Date();
@@ -32,7 +32,7 @@ function formatArrivalTime(predicted_time) {
 }
 
 function formatStopsAway(pred) {
-  if(pred.dyn == 4){
+  if (pred.dyn === 4) {
     return "Drop offs only";
   }
   if (pred.stops_away != null) {
@@ -43,13 +43,13 @@ function formatStopsAway(pred) {
     const n = pred.stops_between.length;
     return `${n} stop${n === 1 ? "" : "s"} away`;
   }
-  if(pred.stops_away === 0){
-    return "Approaching Stop"
+  if (pred.stops_away === 0) {
+    return "Approaching Stop";
   }
-  if(pred.eta_minutes <= 1){
-    return "At Stop"
+  if (pred.eta_minutes <= 1) {
+    return "At Stop";
   }
-  if(pred.stops_away ===null){
+  if (pred.stops_away === null) {
     return "En Route";
   }
   return "Many Stops Away";
@@ -61,15 +61,16 @@ function getOccupancyDots(occupancy) {
   if (occupancy === "EMPTY") return 1;
   if (occupancy === "HALF_EMPTY") return 3;
   if (occupancy === "FULL") return 5;
-  return 0; // treat everything else as "full-ish"
+  return 0;
 }
 
 export default function StopPage() {
   const { stopId } = useParams();
-  const [data, setData] = useState(null);      // whole response
+  const [data, setData] = useState(null); // whole response
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --- fetch predictions for this stop ---
   useEffect(() => {
     if (!stopId) return;
 
@@ -112,6 +113,43 @@ export default function StopPage() {
     stopId === "10070"
       ? "W Johnson at East Campus" // TODO: replace with real stop name data
       : `Stop ${stopId}`;
+
+  // --- NEW: persist this stop into localStorage as a "recent stop" ---
+  useEffect(() => {
+    if (!stopId) return;
+
+    try {
+      const STORAGE_KEY = "bt_recent_stops";
+      const raw = localStorage.getItem(STORAGE_KEY);
+      let recent = [];
+
+      if (raw) {
+        try {
+          recent = JSON.parse(raw);
+          if (!Array.isArray(recent)) recent = [];
+        } catch {
+          recent = [];
+        }
+      }
+
+      // remove any existing entry for this stop
+      recent = recent.filter((item) => item.stopId !== stopId);
+
+      // add to the front
+      recent.unshift({
+        stopId,
+        name: stopName,
+        lastVisited: new Date().toISOString(),
+      });
+
+      // keep only latest 10 (or whatever you like)
+      recent = recent.slice(0, 10);
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(recent));
+    } catch (e) {
+      console.error("Failed to persist recent stop", e);
+    }
+  }, [stopId, stopName]);
 
   return (
     <main className="stop-root">
@@ -193,44 +231,42 @@ export default function StopPage() {
 
                   <div className="bus-card-main">
                     <div className="bus-card-left">
-                        <div className="bus-card-top">
+                      <div className="bus-card-top">
                         <div className="bus-card-destination">
-                            {pred.destination}
+                          {pred.destination}
                         </div>
                         <div className="bus-card-times">
-                            <div className="bus-card-eta">
+                          <div className="bus-card-eta">
                             {pred.eta_minutes != null
-                                ? `${pred.eta_minutes} min`
-                                : "--"}
-                            </div>
-                            
+                              ? `${pred.eta_minutes} min`
+                              : "--"}
+                          </div>
                         </div>
-                        </div>
+                      </div>
 
-                        <div className="bus-card-bottom">
-                            <div className="bus-card-occupancy">
-                                <div className="bus-card-dots">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <span
-                                    key={i}
-                                    className={
-                                        "occ-dot" + (i < occDots ? " occ-dot-filled" : "")
-                                    }
-                                    />
-                                ))}
-                                </div>
-                                <span className="bus-card-sub">{stopsAway}</span>
-                                
-                            </div>
-                            <div className="bus-card-clock">{arrivalLabel}</div>
+                      <div className="bus-card-bottom">
+                        <div className="bus-card-occupancy">
+                          <div className="bus-card-dots">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <span
+                                key={i}
+                                className={
+                                  "occ-dot" +
+                                  (i < occDots ? " occ-dot-filled" : "")
+                                }
+                              />
+                            ))}
+                          </div>
+                          <span className="bus-card-sub">{stopsAway}</span>
                         </div>
+                        <div className="bus-card-clock">{arrivalLabel}</div>
+                      </div>
                     </div>
-                    <div className ="bus-card-right">
-                        <button className="bus-card-track" type="button">
-                          Track
-                        </button>
+                    <div className="bus-card-right">
+                      <button className="bus-card-track" type="button">
+                        Track
+                      </button>
                     </div>
-                    
                   </div>
                 </article>
               );
