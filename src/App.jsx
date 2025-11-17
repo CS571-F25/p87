@@ -52,7 +52,7 @@ function HomePage() {
             <p className="home-card-title">View your recently visited stops</p>
           </Link>
 
-          <Link to="/map" className="home-card">
+          <Link to="/stop/10070" className="home-card">
             <div className="home-card-icon home-card-icon-map" />
             <p className="home-card-title">Select a stop from MapView</p>
           </Link>
