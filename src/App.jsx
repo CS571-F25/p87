@@ -67,10 +67,10 @@ function HomePage() {
             <p className="home-card-title">View your saved stops and groups</p>
           </div>
 
-          <div className="home-card home-card-tall">
+          <Link to="/routes" className="home-card home-card-tall">
             <div className="home-card-icon home-card-icon-search" />
             <p className="home-card-title">Search for stop by Stop ID</p>
-          </div>
+          </Link>
         </section>
 
         {/* Notice blocks */}
