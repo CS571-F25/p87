@@ -164,7 +164,6 @@
   .home-card-icon {
     width: 42px;
     height: 42px;
-    border-radius: 999px;
     background: #e5e7eb;
   }
   
@@ -200,6 +199,13 @@
   .home-card-icon-search {
     background: radial-gradient(circle at 50% 50%, #a855f7, #e5e7eb);
     background-image: url(./assets/btv2editicon.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .home-card-icon-routes{
+    background: radial-gradient(circle at 50% 50%, #a855f7, #e5e7eb);
+    background-image: url(./assets/btv2routesicon.svg);
     background-repeat: no-repeat;
     background-position: center;
   }

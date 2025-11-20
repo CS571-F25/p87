@@ -1,7 +1,35 @@
 // src/components/RouteLayer.jsx
-import { Source, Layer } from "react-map-gl/maplibre";
+import { useEffect } from "react";
+import { Source, Layer, useMap } from "react-map-gl/maplibre";
+import busIcon from "../assets/btv2busicon.svg";
+import longBusIcon from "../assets/btv2longbusicon.svg";
 
 export default function RouteLayer({ routeData }) {
+  const { current: map } = useMap();
+
+  useEffect(() => {
+    if (!map) return;
+
+    const addIcon = (name, src) => {
+      if (map.hasImage(name)) return;
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+
+      img.onload = () => {
+        if (!map.hasImage(name)) {
+          const ratio = window.devicePixelRatio || 2;
+          map.addImage(name, img, { pixelRatio: ratio });
+        }
+      };
+
+      img.src = src;
+    };
+
+    addIcon("btv2-bus-icon", busIcon);
+    addIcon("btv2-long-bus-icon", longBusIcon);
+  }, [map]);
+
   const lineFeatures =
     (routeData.route_polylines || []).map((segment, idx) => ({
       type: "Feature",
@@ -16,18 +44,29 @@ export default function RouteLayer({ routeData }) {
     })) || [];
 
   const vehicleFeatures =
-    (routeData.vehicles || []).map((v, idx) => ({
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: [Number(v.lon), Number(v.lat)],
-      },
-      properties: {
-        id: v.vehicle_id || idx,
-        destination: v.destination,
-        occupancy: v.occupancy,
-      },
-    })) || [];
+    (routeData.vehicles || []).map((v, idx) => {
+      const vehicleId =
+        v.vehicle_id != null ? String(v.vehicle_id) : String(idx);
+
+      // 4-digit vehicle ID -> long bus icon, 3-digit -> regular bus icon
+      const iconName =
+        vehicleId.length === 4 ? "btv2-long-bus-icon" : "btv2-bus-icon";
+
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [Number(v.lon), Number(v.lat)],
+        },
+        properties: {
+          id: vehicleId,
+          destination: v.destination,
+          occupancy: v.occupancy,
+          bearing: v.bearing != null ? Number(v.bearing) : 0,
+          icon: iconName,
+        },
+      };
+    }) || [];
 
   const routeKey = routeData.route || "route";
 
@@ -61,14 +100,40 @@ export default function RouteLayer({ routeData }) {
       >
         <Layer
           id={`route-vehicle-layer-${routeKey}`}
-          type="circle"
-          paint={{
-            "circle-radius": 5,
-            "circle-color": "#e11d48",
-            "circle-stroke-width": 1.5,
-            "circle-stroke-color": "#ffffff",
+          type="symbol"
+          layout={{
+            // Use per-feature icon
+            "icon-image": ["coalesce", ["get", "icon"], "btv2-bus-icon"],
+
+            "icon-size": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              8, 0.025,
+              12, 0.025,
+              16, 0.1,
+            ],
+
+            // 🔁 Rotate based on bearing, with a different offset
+            // Regular bus: subtract 90 (icon drawn pointing east)
+            // Long bus: no offset (icon drawn pointing north)
+            "icon-rotate": [
+              "-",
+              ["coalesce", ["get", "bearing"], 0],
+              [
+                "case",
+                ["==", ["get", "icon"], "btv2-long-bus-icon"], -90,   // long bus
+                90                                                   // regular bus
+              ]
+            ],
+
+            "icon-rotation-alignment": "map",
+            "icon-anchor": "center",
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
           }}
         />
+
       </Source>
     </>
   );

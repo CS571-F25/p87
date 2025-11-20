@@ -68,9 +68,14 @@ function HomePage() {
             <p className="home-card-title">View your saved stops and groups</p>
           </div>
 
-          <Link to="/routes" className="home-card home-card-tall">
+          <Link to="/routes" className="home-card">
             <div className="home-card-icon home-card-icon-search" />
             <p className="home-card-title">Search for stop by Stop ID</p>
+          </Link>
+
+          <Link to="/routes" className="home-card">
+            <div className="home-card-icon home-card-icon-routes" />
+            <p className="home-card-title">See live bus locations by route</p>
           </Link>
         </section>
 

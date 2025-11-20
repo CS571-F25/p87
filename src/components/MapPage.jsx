@@ -62,7 +62,6 @@ function MapPage() {
 
       <MapView>
         <StopMarkers stops={stops} />
-        <BusLayer stopId="0626" />
         {routeData && <RouteLayer routeData={routeData} />}
       </MapView>
     </>

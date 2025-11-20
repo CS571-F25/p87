@@ -13,7 +13,7 @@ function MapView({ children }) {
         }}
         minZoom={13}
         maxZoom={18}
-        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
         scrollZoom={true}
         doubleClickZoom={true}
         dragRotate={false}

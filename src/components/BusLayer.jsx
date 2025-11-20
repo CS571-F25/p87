@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useMap } from "react-map-gl/maplibre";
 import maplibregl from "maplibre-gl";
+import busIcon from "../assets/btv2busicon.svg";
 
 const routeColors = {
   A2: "#FF5810", A1: "#FF5810", A: "#FF5810", B: "#9ACE00", C: "#FF5810",
@@ -14,6 +15,23 @@ const routeColors = {
 function BusLayer({ stopId }) {
   const mapInstance = useMap();
 
+  // Load bus icon once when map is ready
+  useEffect(() => {
+    const map = mapInstance.current?.getMap();
+    if (!map || map.hasImage("bus-icon")) return;
+
+    map.loadImage(busIcon, (error, image) => {
+      if (error) {
+        console.error("Failed to load bus icon:", error);
+        return;
+      }
+      if (!map.hasImage("bus-icon")) {
+        map.addImage("bus-icon", image, { pixelRatio: 2 });
+      }
+    });
+  }, [mapInstance]);
+
+  // Handle bus data and rendering
   useEffect(() => {
     const map = mapInstance.current?.getMap();
     if (!map) return;
@@ -123,16 +141,15 @@ function BusLayer({ stopId }) {
             },
           });
 
-          // 🟡 Bus dots
+          // 🚌 Bus icon markers
           map.addLayer({
             id: busLayerId,
-            type: "circle",
+            type: "symbol",
             source: sourceId,
-            paint: {
-              "circle-radius": 6,
-              "circle-color": "#FFD60A",
-              "circle-stroke-color": "#000",
-              "circle-stroke-width": 1,
+            layout: {
+              "icon-image": "bus-icon",
+              "icon-size": 0.6,
+              "icon-allow-overlap": true,
             },
           });
 
