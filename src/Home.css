@@ -301,4 +301,72 @@
     color: var(--text-muted);
   }
   
+  /* Header */
+
+  .home-header {
+    display: flex;
+    flex-direction: column;  /* stack logo/time and nav */
+    align-items: stretch;    /* header children take full width */
+    gap: 14px;
   
+    position: sticky;  /* 👈 makes it stick */
+    top: 0;            /* 👈 stick to top of viewport */
+    z-index: 10;       /* stay above cards/content */
+    background: #fff;  /* so content doesn’t show through */
+    margin-left: -2px;
+    margin-right: -2px;
+    padding-bottom: 5px;
+  }
+  
+  
+  /* row that holds logo + clock */
+  .home-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }  
+
+/* --- NAV BAR --- */
+
+.home-nav {
+  display: flex;
+  width: 100%;            /* span across header */
+  gap: 2px;               /* spacing between tabs */
+  padding-top: 0px;
+}
+
+.home-nav-tab {
+  flex: 1 1 0;            /* each tab gets equal share of width */
+  text-align: center;
+  padding: 3px 0;
+  border-radius: 8px;
+  background: #F6F6F6;
+
+  /* NavButton */
+  box-shadow: 0 1px 0.8px 0 rgba(140, 138, 138, 0.23);
+  font-family: "Mona Sans";
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  color: #000;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.36s ease;
+}
+
+.home-nav-tab--active {
+  border-radius: 8px;
+  background: #FFF;
+  box-shadow: 0 1.5px 1px 0 rgba(45, 45, 45, 0.15) inset;
+}
+
+
+.home-nav-tab:hover {
+  transform: translateY(0px);
+  background: #FFF;
+  box-shadow: 0 1.5px 1px 0 rgba(45, 45, 45, 0.15) inset;
+  color: #000;
+}
+ 

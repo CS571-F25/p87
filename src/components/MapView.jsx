@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 function MapView({ children }) {
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <div className="map-view-root">
       <Map
         initialViewState={{
           longitude: -89.4012,
@@ -14,10 +14,10 @@ function MapView({ children }) {
         minZoom={13}
         maxZoom={18}
         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-        scrollZoom={true}
-        doubleClickZoom={true}
+        scrollZoom
+        doubleClickZoom
         dragRotate={false}
-        touchZoomRotate={true}
+        touchZoomRotate
       >
         {children}
       </Map>

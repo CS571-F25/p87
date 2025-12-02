@@ -1,7 +1,9 @@
 // src/StopPage.jsx
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import { useParams, Link } from "react-router-dom";
 import "./Stops.css";
+import "./Home.css";
 
 // simple route → color map (same palette you used on Routes page)
 const ROUTE_COLORS = {
@@ -155,23 +157,61 @@ export default function StopPage() {
     <main className="stop-root">
       <section className="stop-inner">
         {/* HEADER (clickable back to home) */}
-        <header className="routes-header-wrapper">
-          <Link to="/" className="routes-header-link">
-            <div className="home-header">
-              <div className="home-logo">
-                <div className="home-logo-square" />
-                <div className="home-wordmark">
-                  <div className="home-logo-text-main">badger</div>
-                  <div className="home-logo-text-sub">transit</div>
-                </div>
-              </div>
-
-              <div className="home-clock">
-                <div className="home-clock-date">{dateString}</div>
-                <div className="home-clock-time">{timeString}</div>
+        <header className="home-header">
+          <div className="home-header-top">
+            <div className="home-logo">
+              <div className="home-logo-square" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
               </div>
             </div>
-          </Link>
+
+            <div className="home-clock">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
+            </div>
+          </div>
+
+          {/* Tab nav */}
+          <nav className="home-nav">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Home
+            </NavLink>
+
+            <NavLink
+              to="/routes" // hook this up to your timetable page later if you want
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Timetable
+            </NavLink>
+
+            <NavLink
+              to="/routes"
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Routes
+            </NavLink>
+
+            <NavLink
+              to="/settings" // will fall back to HomePage for now
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Settings
+            </NavLink>
+          </nav>
         </header>
 
         {/* STOP INFO BAR */}

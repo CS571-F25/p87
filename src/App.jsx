@@ -1,11 +1,10 @@
 // src/App.jsx
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, NavLink } from "react-router-dom";
 import "./Home.css";
 import RoutesPage from "./Routes.jsx";
-import MapPage from "./components/MapPage.jsx"; // ← use the dedicated MapPage
+import MapPage from "./components/MapPage.jsx";
 import StopPage from "./StopPage.jsx";
 import RecentPage from "./Recent.jsx";
-
 
 // === HOME PAGE ===
 function HomePage() {
@@ -23,20 +22,62 @@ function HomePage() {
   return (
     <main className="home-root">
       <section className="home-phone">
-        {/* Top bar: logo + time/date */}
+        {/* Top bar: logo + time/date + nav */}
         <header className="home-header">
-          <div className="home-logo">
-            <div className="home-logo-square" />
-            <div className="home-wordmark">
-              <div className="home-logo-text-main">badger</div>
-              <div className="home-logo-text-sub">transit</div>
+          <div className="home-header-top">
+            <div className="home-logo">
+              <div className="home-logo-square" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
+              </div>
+            </div>
+
+            <div className="home-clock">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
             </div>
           </div>
 
-          <div className="home-clock">
-            <div className="home-clock-date">{dateString}</div>
-            <div className="home-clock-time">{timeString}</div>
-          </div>
+          {/* Tab nav */}
+          <nav className="home-nav">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Home
+            </NavLink>
+
+            <NavLink
+              to="/routes" // hook this up to your timetable page later if you want
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Timetable
+            </NavLink>
+
+            <NavLink
+              to="/routes"
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Routes
+            </NavLink>
+
+            <NavLink
+              to="/settings" // will fall back to HomePage for now
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Settings
+            </NavLink>
+          </nav>
         </header>
 
         {/* Title */}
