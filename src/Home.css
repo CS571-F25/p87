@@ -370,3 +370,140 @@
   color: #000;
 }
  
+.home-phone {
+  position: relative; /* if not already present */
+}
+
+/* === SmartLaunch toast card === */
+
+.smartlaunch-toast {
+  position: absolute;
+  top: 5.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
+  font-family: "Mona Sans";
+  font-size: 25px;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.smartlaunch-toast-inner {
+  width: 220px;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border-radius: 1.6rem;
+  background: #ffffff;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  font-family: inherit;
+  animation: smartlaunch-drop 0.35s ease-out;
+}
+
+/* Circle with countdown progress ring + arrow */
+.smartlaunch-toast-icon-circle {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 0.8rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SVG circular progress */
+.smartlaunch-progress-svg {
+  position: absolute;
+  inset: 0;
+  width: 88px;
+  height: 88px;
+  --size: 100px;
+  --half-size: 44px;
+  --stroke-width: 6px;
+  --radius: 41px;
+  --circumference: 257.61;
+  --dash: calc((var(--progress) * var(--circumference)) / 100);
+  animation: smartlaunch-progress-animation 1.5s linear 0s 1 forwards;
+}
+
+.smartlaunch-progress-svg circle {
+  cx: var(--half-size);
+  cy: var(--half-size);
+  r: var(--radius);
+  stroke-width: var(--stroke-width);
+  fill: none;
+  stroke-linecap: round;
+}
+
+.smartlaunch-progress-svg circle.bg {
+  stroke: #e5e5e5;
+}
+
+.smartlaunch-progress-svg circle.fg {
+  transform: rotate(-90deg);
+  transform-origin: var(--half-size) var(--half-size);
+  stroke-dasharray: var(--dash) calc(var(--circumference) - var(--dash));
+  transition: stroke-dasharray 0.1s linear 0s;
+  stroke: #111111;
+}
+
+.smartlaunch-toast-icon-arrow {
+  font-size: 1.9rem;
+  position: relative;
+  z-index: 1;
+}
+
+.smartlaunch-toast-stop-id {
+  font-weight: 700;
+  font-size: 1.5rem;
+  margin-bottom: 0.9rem;
+  color: #111111;
+}
+
+/* Pill button */
+.smartlaunch-toast-button {
+  display: inline-block;
+  padding: 0.45rem 1.8rem;
+  border-radius: 999px;
+  border: none;
+  background: #111111;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.2s ease;
+}
+
+.smartlaunch-toast-button:hover {
+  background: #333333;
+}
+
+/* Drop-in animation from top */
+@keyframes smartlaunch-drop {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* CSS Custom Property for smooth progress */
+@property --progress {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+/* Smooth countdown animation - 0 to 100% over 2 seconds */
+@keyframes smartlaunch-progress-animation {
+  from {
+    --progress: 0;
+  }
+  to {
+    --progress: 100;
+  }
+}

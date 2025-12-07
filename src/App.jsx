@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Routes, Route, Link, NavLink, useNavigate } from "react-router-dom";
 import "./Home.css";
 import RoutesPage from "./Routes.jsx";
@@ -58,6 +58,9 @@ function isRuleActiveNow(rule, now = new Date()) {
 // === HOME PAGE ===
 function HomePage() {
   const navigate = useNavigate();
+  const [redirectInfo, setRedirectInfo] = useState(null);
+  const timeoutRef = useRef(null);
+  const cancelledRef = useRef(false);
 
   // SmartLaunch auto-jump on home load
   useEffect(() => {
@@ -65,6 +68,9 @@ function HomePage() {
     if (rules.length === 0) return;
 
     if (!("geolocation" in navigator)) return;
+
+    // fresh mount: assume not cancelled
+    cancelledRef.current = false;
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -84,8 +90,21 @@ function HomePage() {
           return d <= rule.radiusMeters;
         });
 
-        if (match) {
-          navigate(`/stop/${match.stopId}`);
+        if (match && !cancelledRef.current) {
+          // show toast
+          setRedirectInfo({
+            stopId: match.stopId,
+            name: match.name || `Stop ${match.stopId}`,
+          });
+
+          // then navigate after a short delay
+          timeoutRef.current = window.setTimeout(() => {
+            // extra safety guard in case user clicked Stop or component unmounted
+            if (!cancelledRef.current) {
+              navigate(`/stop/${match.stopId}`);
+            }
+            timeoutRef.current = null;
+          }, 1600); // Match the CSS animation duration
         }
       },
       (err) => {
@@ -97,7 +116,29 @@ function HomePage() {
         timeout: 10000,
       }
     );
+
+    return () => {
+      // mark as cancelled so any late timer won't navigate
+      cancelledRef.current = true;
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
   }, [navigate]);
+
+  const handleCancelRedirect = () => {
+    // mark as cancelled so even if timeout fires, it won't navigate
+    cancelledRef.current = true;
+
+    // Clear the timeout to prevent navigation
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    // Hide the toast
+    setRedirectInfo(null);
+  };
 
   const now = new Date();
   const timeString = now.toLocaleTimeString([], {
@@ -113,6 +154,30 @@ function HomePage() {
   return (
     <main className="home-root">
       <section className="home-phone">
+        {redirectInfo && (
+          <div className="smartlaunch-toast">
+            <div className="smartlaunch-toast-inner">
+              <div className="smartlaunch-toast-icon-circle">
+                <svg className="smartlaunch-progress-svg" viewBox="0 0 88 88">
+                  <circle className="bg"></circle>
+                  <circle className="fg"></circle>
+                </svg>
+                <span className="smartlaunch-toast-icon-arrow">➜</span>
+              </div>
+              <div className="smartlaunch-toast-stop-id">
+                #{redirectInfo.stopId}
+              </div>
+              <button
+                type="button"
+                className="smartlaunch-toast-button"
+                onClick={handleCancelRedirect}
+              >
+                Stop
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Top bar: logo + time/date + nav */}
         <header className="home-header">
           <div className="home-header-top">
@@ -213,9 +278,7 @@ function HomePage() {
 
         {/* Title */}
         <section className="home-hero">
-          <h1 className="home-hero-title">
-            User Settings
-          </h1>
+          <h1 className="home-hero-title">User Settings</h1>
         </section>
 
         {/* Action cards */}
