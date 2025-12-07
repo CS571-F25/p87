@@ -1,11 +1,9 @@
 // src/StopPage.jsx
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import { useParams, Link } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import "./Stops.css";
 import "./Home.css";
 
-// simple route → color map (same palette you used on Routes page)
 const ROUTE_COLORS = {
   A: "#FF0000",
   A1: "#FF0000",
@@ -66,8 +64,120 @@ function getOccupancyDots(occupancy) {
   return 0;
 }
 
+/* ========= CARD COMPONENTS ========= */
+
+function RegularBusCard({ pred, onTrack }) {
+  const arrivalLabel = formatArrivalTime(pred.predicted_time);
+  const stopsAwayText = formatStopsAway(pred);
+  const occDots = getOccupancyDots(pred.occupancy || "");
+
+  return (
+    <article className="bus-card">
+      <div
+        className="bus-card-route"
+        style={{ backgroundColor: getRouteColor(pred.route) }}
+      >
+        {pred.route}
+      </div>
+
+      <div className="bus-card-main">
+        <div className="bus-card-left">
+          {/* top row */}
+          <div className="bus-card-top">
+            <div className="bus-card-destination">{pred.destination}</div>
+            <div className="bus-card-times">
+              <div className="bus-card-eta">
+                {pred.eta_minutes != null ? `${pred.eta_minutes} min` : "--"}
+              </div>
+            </div>
+          </div>
+
+          {/* second row */}
+          <div className="bus-card-bottom">
+            <div className="bus-card-occupancy">
+              <div className="bus-card-dots">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={
+                      "occ-dot" + (i < occDots ? " occ-dot-filled" : "")
+                    }
+                  />
+                ))}
+              </div>
+              <span className="bus-card-sub">{stopsAwayText}</span>
+            </div>
+            <div className="bus-card-clock">{arrivalLabel}</div>
+          </div>
+        </div>
+
+        {/* right column with Track */}
+        <div className="bus-card-right">
+          <button
+            className="bus-card-track"
+            type="button"
+            onClick={onTrack}
+            disabled={!onTrack}
+          >
+            Track
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ShortBusCard({ pred }) {
+  const arrivalLabel = formatArrivalTime(pred.predicted_time);
+  const stopsAwayText = formatStopsAway(pred);
+
+  return (
+    <article className="bus-card-short">
+      <div
+        className="bus-card-route"
+        style={{ backgroundColor: getRouteColor(pred.route) }}
+      >
+        {pred.route}
+      </div>
+
+      <div className="bus-card-main">
+        <div className="bus-card-left">
+          {/* top row */}
+          <div className="bus-card-top">
+            <div className="bus-card-destination">{pred.destination}</div>
+            <div className="bus-card-times">
+              <div className="bus-card-eta">
+                {pred.eta_minutes != null ? `${pred.eta_minutes} min` : "--"}
+              </div>
+            </div>
+          </div>
+
+          {/* second row */}
+          <div className="bus-card-bottom">
+            <div className="bus-card-occupancy">
+              <span className="bus-card-sub">
+                Too far to track info
+              </span>
+            </div>
+            <div className="bus-card-clock">{arrivalLabel}</div>
+          </div>
+        </div>
+
+        {/* right column with Track */}
+        <div className="bus-card-right">
+          <div className="bus-card-track-short">--------</div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/* ========= MAIN PAGE ========= */
+
 export default function StopPage() {
   const { stopId } = useParams();
+  const navigate = useNavigate();
+
   const [data, setData] = useState(null); // whole response
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -112,11 +222,9 @@ export default function StopPage() {
   });
 
   const stopName =
-    stopId === "10070"
-      ? "W Johnson at East Campus" // TODO: replace with real stop name data
-      : `Stop ${stopId}`;
+    stopId === "10070" ? "W Johnson at East Campus" : `Stop ${stopId}`;
 
-  // --- NEW: persist this stop into localStorage as a "recent stop" ---
+  // --- persist this stop into localStorage as a "recent stop" ---
   useEffect(() => {
     if (!stopId) return;
 
@@ -144,7 +252,7 @@ export default function StopPage() {
         lastVisited: new Date().toISOString(),
       });
 
-      // keep only latest 10 (or whatever you like)
+      // keep only latest 10
       recent = recent.slice(0, 10);
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(recent));
@@ -156,7 +264,7 @@ export default function StopPage() {
   return (
     <main className="stop-root">
       <section className="stop-inner">
-        {/* HEADER (clickable back to home) */}
+        {/* HEADER */}
         <header className="home-header">
           <div className="home-header-top">
             <div className="home-logo">
@@ -186,7 +294,7 @@ export default function StopPage() {
             </NavLink>
 
             <NavLink
-              to="/routes" // hook this up to your timetable page later if you want
+              to="/stop/10070"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -204,7 +312,7 @@ export default function StopPage() {
             </NavLink>
 
             <NavLink
-              to="/settings" // will fall back to HomePage for now
+              to="/settings"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -255,60 +363,24 @@ export default function StopPage() {
             !error &&
             data &&
             data.results.map((pred) => {
-              const arrivalLabel = formatArrivalTime(pred.predicted_time);
-              const stopsAway = formatStopsAway(pred);
-              const occDots = getOccupancyDots(pred.occupancy || "");
-              const key = pred.trip_uid || `${pred.route}-${pred.predicted_time}`;
+              const stopsAwayText = formatStopsAway(pred);
+              const isEnRoute = stopsAwayText === "En Route";
+              const key =
+                pred.trip_uid || `${pred.route}-${pred.predicted_time}`;
 
-              return (
-                <article className="bus-card" key={key}>
-                  <div
-                    className="bus-card-route"
-                    style={{ backgroundColor: getRouteColor(pred.route) }}
-                  >
-                    {pred.route}
-                  </div>
+              const handleTrack = () => {
+                if (!pred.vehicle_id) return;
+                navigate(`/map/${stopId}/${pred.vehicle_id}`);
+              };
 
-                  <div className="bus-card-main">
-                    <div className="bus-card-left">
-                      <div className="bus-card-top">
-                        <div className="bus-card-destination">
-                          {pred.destination}
-                        </div>
-                        <div className="bus-card-times">
-                          <div className="bus-card-eta">
-                            {pred.eta_minutes != null
-                              ? `${pred.eta_minutes} min`
-                              : "--"}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bus-card-bottom">
-                        <div className="bus-card-occupancy">
-                          <div className="bus-card-dots">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <span
-                                key={i}
-                                className={
-                                  "occ-dot" +
-                                  (i < occDots ? " occ-dot-filled" : "")
-                                }
-                              />
-                            ))}
-                          </div>
-                          <span className="bus-card-sub">{stopsAway}</span>
-                        </div>
-                        <div className="bus-card-clock">{arrivalLabel}</div>
-                      </div>
-                    </div>
-                    <div className="bus-card-right">
-                      <button className="bus-card-track" type="button">
-                        Track
-                      </button>
-                    </div>
-                  </div>
-                </article>
+              return isEnRoute ? (
+                <ShortBusCard key={key} pred={pred} />
+              ) : (
+                <RegularBusCard
+                  key={key}
+                  pred={pred}
+                  onTrack={pred.vehicle_id ? handleTrack : undefined}
+                />
               );
             })}
         </section>
@@ -320,7 +392,7 @@ export default function StopPage() {
           <span>Report an issue at this bus stop</span>
         </section>
 
-        {/* FOOTER (same as other pages) */}
+        {/* FOOTER */}
         <footer className="home-footer routes-footer">
           <div className="home-footer-left">
             <div className="home-logo-small-square" />

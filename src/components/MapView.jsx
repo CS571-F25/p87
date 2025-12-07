@@ -2,7 +2,7 @@
 import Map from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-function MapView({ children }) {
+function MapView({ children, onMapClick }) {
   return (
     <div className="map-view-root">
       <Map
@@ -18,6 +18,7 @@ function MapView({ children }) {
         doubleClickZoom
         dragRotate={false}
         touchZoomRotate
+        onClick={onMapClick}
       >
         {children}
       </Map>

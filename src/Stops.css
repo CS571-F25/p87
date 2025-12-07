@@ -118,6 +118,15 @@
     /* Slight Drop */
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.07);
   }
+
+  .bus-card-short{
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    height: 66px;
+    border-radius: 5px;
+    background: #F6F6F6;
+  }
   
   .bus-card-route {
     width: 42px;
@@ -148,6 +157,7 @@
     padding: 15px;
   }
 
+
   .bus-card-destination {
     margin-top: 10px;
     font-family: "Mona Sans";
@@ -166,6 +176,16 @@
     border-radius: 999px;
     border: 1px solid #e5e7eb;
     background: #ffffff;
+    padding: 6px 14px;
+    font-size: 14px;
+    font-family: "Mona Sans";
+    color: #000;
+  }
+
+  .bus-card-track-short {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
     padding: 6px 14px;
     font-size: 14px;
     font-family: "Mona Sans";
@@ -334,3 +354,34 @@
     margin-top: 24px;
   }
   
+  /* single-row layout when bus is "En Route" */
+.bus-card-left--single {
+  justify-content: center;
+}
+
+/* small status text under ETA for En Route buses */
+.bus-card-status {
+  font-family: "Mona Sans";
+  font-size: 13px;
+  font-weight: 400;
+  color: #4b5563;
+}
+
+/* shorter, single-row En Route cards */
+.bus-card--short {
+  height: 40px; /* tweak as you like */
+  box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0.07);
+  margin-bottom: -5px;
+}
+
+/* center content vertically since there's only one row */
+.bus-card--short .bus-card-left {
+  justify-content:flex-end;
+}
+
+/* remove extra top margin so text sits nicely */
+.bus-card--short .bus-card-destination,
+.bus-card--short .bus-card-eta {
+  margin-top: 0;
+}
+

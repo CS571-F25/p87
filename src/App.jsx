@@ -1,13 +1,104 @@
 // src/App.jsx
-import { Routes, Route, Link, NavLink } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, Link, NavLink, useNavigate } from "react-router-dom";
 import "./Home.css";
 import RoutesPage from "./Routes.jsx";
 import MapPage from "./components/MapPage.jsx";
 import StopPage from "./StopPage.jsx";
 import RecentPage from "./Recent.jsx";
+import SmartLaunchPage from "./SmartLaunch.jsx";
+import { loadSmartLaunchRules } from "./utils/smartLaunch";
+
+// simple haversine distance in meters
+function distanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = (x) => (x * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function isRuleActiveNow(rule, now = new Date()) {
+  if (!rule.startTime || !rule.endTime) {
+    // no time window -> always active
+    return true;
+  }
+
+  const [sh, sm] = rule.startTime.split(":").map(Number);
+  const [eh, em] = rule.endTime.split(":").map(Number);
+  if (
+    !Number.isFinite(sh) ||
+    !Number.isFinite(sm) ||
+    !Number.isFinite(eh) ||
+    !Number.isFinite(em)
+  ) {
+    return true; // fallback if stored weird
+  }
+
+  const startMin = sh * 60 + sm;
+  const endMin = eh * 60 + em;
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  if (startMin <= endMin) {
+    // simple window, e.g. 07:00–12:00
+    return nowMin >= startMin && nowMin <= endMin;
+  } else {
+    // wraps midnight, e.g. 22:00–02:00
+    return nowMin >= startMin || nowMin <= endMin;
+  }
+}
 
 // === HOME PAGE ===
 function HomePage() {
+  const navigate = useNavigate();
+
+  // SmartLaunch auto-jump on home load
+  useEffect(() => {
+    const rules = loadSmartLaunchRules().filter((r) => r.enabled !== false);
+    if (rules.length === 0) return;
+
+    if (!("geolocation" in navigator)) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const now = new Date();
+
+        const match = rules.find((rule) => {
+          if (!isRuleActiveNow(rule, now)) {
+            return false;
+          }
+          const d = distanceMeters(
+            latitude,
+            longitude,
+            rule.center.lat,
+            rule.center.lon
+          );
+          return d <= rule.radiusMeters;
+        });
+
+        if (match) {
+          navigate(`/stop/${match.stopId}`);
+        }
+      },
+      (err) => {
+        console.warn("SmartLaunch geolocation failed/denied", err);
+      },
+      {
+        enableHighAccuracy: false,
+        maximumAge: 60000,
+        timeout: 10000,
+      }
+    );
+  }, [navigate]);
+
   const now = new Date();
   const timeString = now.toLocaleTimeString([], {
     hour: "numeric",
@@ -61,16 +152,16 @@ function HomePage() {
             </NavLink>
 
             <NavLink
-              to="/routes"
+              to="/map"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
-              Routes
+              Map
             </NavLink>
 
             <NavLink
-              to="/settings" // will fall back to HomePage for now
+              to="/settings" // now points to SmartLaunchPage
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -120,6 +211,21 @@ function HomePage() {
           </Link>
         </section>
 
+        {/* Title */}
+        <section className="home-hero">
+          <h1 className="home-hero-title">
+            User Settings
+          </h1>
+        </section>
+
+        {/* Action cards */}
+        <section className="home-card-grid">
+          <Link to="/settings" className="home-card">
+            <div className="home-card-icon home-card-icon-star" />
+            <p className="home-card-title">Configure SmartLaunch</p>
+          </Link>
+        </section>
+
         {/* Notice blocks */}
         <section className="home-notice">
           <h2 className="home-notice-title">
@@ -129,9 +235,8 @@ function HomePage() {
             BadgerTransit is designed for experienced Madison Transit riders.
           </h2>
           <p className="home-notice-body">
-            BadgerTransit only shows bus arrivals and information. If you&apos;re
-            inquiring about navigation, Google Maps or a similar service will
-            serve you best.
+            BadgerTransit does not provide navigation. Users are expected to
+            know which bus stops they must board and depart at.
           </p>
         </section>
 
@@ -159,7 +264,9 @@ function HomePage() {
               terms of service
             </button>
           </div>
-          <div className="home-footer-meta">badgertransit ©2026</div>
+          <div className="home-footer-meta">
+            badgertransit ©2026 built for CS571
+          </div>
         </footer>
       </section>
     </main>
@@ -171,13 +278,19 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+
+      {/* Map modes */}
       <Route path="/map" element={<MapPage />} />
       <Route path="/map/:routeId" element={<MapPage />} />
+      {/* track a single bus from a stop */}
+      <Route path="/map/:stopId/:vehicleId" element={<MapPage />} />
+
       <Route path="/routes" element={<RoutesPage />} />
-      <Route path="/stop/:stopId" element={<StopPage />} />   {/* 👈 new */}
+      <Route path="/stop/:stopId" element={<StopPage />} />
       <Route path="/recent" element={<RecentPage />} />
+      {/* Settings -> SmartLaunch */}
+      <Route path="/settings" element={<SmartLaunchPage />} />
       <Route path="*" element={<HomePage />} />
     </Routes>
-
   );
 }
