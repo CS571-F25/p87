@@ -1,0 +1,158 @@
+.map-page-main {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .map-page-map-wrapper {
+    position: relative;
+    height: 75vh;          /* or 420px if you prefer a fixed size */
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
+  
+  /* make MapView fill its parent instead of 100vh */
+  .map-view-root {
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* overlay buttons */
+  .map-page-back-btn,
+  .map-page-center-btn,
+  .map-page-locate-btn {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* positions like your screenshot */
+  .map-page-back-btn {
+    top: 16px;
+    left: 16px;
+  }
+  
+  .map-page-center-btn {
+    top: 120px;
+    right: 16px;
+  }
+  
+  .map-page-locate-btn {
+    top: 190px;
+    right: 16px;
+  }
+  
+  /* bottom card */
+  .map-page-info-card {
+    margin-top: 8px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .map-page-info-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .map-page-route-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #ff0000;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .map-page-route-text-main {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .map-page-route-text-sub {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  
+  .map-page-info-right {
+    text-align: right;
+  }
+  
+  .map-page-info-time-main {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  .map-page-info-time-sub {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  
+  .map-select-mode {
+    pointer-events: none;
+  }
+  
+  .map-select-banner {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8B5CF6;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    pointer-events: auto;
+    font-weight: 500;
+  }
+  
+  .map-select-cancel {
+    background: white;
+    color: #8B5CF6;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .map-select-cancel:hover {
+    background: #f3f4f6;
+  }
+  
+  .stop-marker-selectable {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }

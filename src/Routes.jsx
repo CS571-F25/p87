@@ -10,8 +10,8 @@ const ROUTE_GROUPS = [
     title: "Bus Rapid Transit",
     routes: [
       { code: "A", color: "#F00" }, // red
-      { code: "B", color: "#84BC00" }, // green
-      { code: "F", color: "#0039AA" }, // blue
+      { code: "B*", color: "#84BC00" }, // green
+      { code: "F*", color: "#0039AA" }, // blue
     ],
   },
   {
@@ -69,6 +69,7 @@ export default function RoutesPage() {
       <section className="routes-inner">
         {/* Top bar: logo + time/date + nav */}
         <header className="home-header">
+        <Link to="/" className="routes-header-link">
           <div className="home-header-top">
             <div className="home-logo">
               <div className="home-logo-square" />
@@ -83,6 +84,7 @@ export default function RoutesPage() {
               <div className="home-clock-time">{timeString}</div>
             </div>
           </div>
+          </Link>
 
           {/* Tab nav */}
           <nav className="home-nav">
@@ -97,30 +99,30 @@ export default function RoutesPage() {
             </NavLink>
 
             <NavLink
-              to="/stop/10070" // hook this up to your timetable page later if you want
+              to="/recent" // hook this up to your timetable page later if you want
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
-              Timetable
+              Recent
             </NavLink>
 
             <NavLink
-              to="/routes"
+              to="/map"
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Map
+            </NavLink>
+
+            <NavLink
+              to="/routes" // now points to SmartLaunchPage
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
               Routes
-            </NavLink>
-
-            <NavLink
-              to="/settings" // will fall back to HomePage for now
-              className={({ isActive }) =>
-                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
-              }
-            >
-              Settings
             </NavLink>
           </nav>
         </header>

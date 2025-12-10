@@ -3,11 +3,12 @@ import { useEffect, useState, useRef } from "react";
 import { Routes, Route, Link, NavLink, useNavigate } from "react-router-dom";
 import "./Home.css";
 import RoutesPage from "./Routes.jsx";
-import MapPage from "./components/MapPage.jsx";
+import MapPage from "./MapPage.jsx";
 import StopPage from "./StopPage.jsx";
 import RecentPage from "./Recent.jsx";
 import SmartLaunchPage from "./SmartLaunch.jsx";
 import { loadSmartLaunchRules } from "./utils/smartLaunch";
+import SavedPage from "./Saved.jsx";
 
 // simple haversine distance in meters
 function distanceMeters(lat1, lon1, lat2, lon2) {
@@ -104,7 +105,7 @@ function HomePage() {
               navigate(`/stop/${match.stopId}`);
             }
             timeoutRef.current = null;
-          }, 1600); // Match the CSS animation duration
+          }, 1100); // Match the CSS animation duration
         }
       },
       (err) => {
@@ -180,6 +181,7 @@ function HomePage() {
 
         {/* Top bar: logo + time/date + nav */}
         <header className="home-header">
+        <Link to="/" className="routes-header-link">
           <div className="home-header-top">
             <div className="home-logo">
               <div className="home-logo-square" />
@@ -194,6 +196,7 @@ function HomePage() {
               <div className="home-clock-time">{timeString}</div>
             </div>
           </div>
+          </Link>
 
           {/* Tab nav */}
           <nav className="home-nav">
@@ -208,12 +211,12 @@ function HomePage() {
             </NavLink>
 
             <NavLink
-              to="/routes" // hook this up to your timetable page later if you want
+              to="/recent" // hook this up to your timetable page later if you want
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
-              Timetable
+              Recent
             </NavLink>
 
             <NavLink
@@ -226,12 +229,12 @@ function HomePage() {
             </NavLink>
 
             <NavLink
-              to="/settings" // now points to SmartLaunchPage
+              to="/routes" // now points to SmartLaunchPage
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
-              Settings
+              Routes
             </NavLink>
           </nav>
         </header>
@@ -260,10 +263,10 @@ function HomePage() {
             <p className="home-card-title">See nearby bus stops</p>
           </Link>
 
-          <div className="home-card">
+          <Link to="/saved" className="home-card">  {/* Change from <div> to <Link> */}
             <div className="home-card-icon home-card-icon-saved" />
             <p className="home-card-title">View your saved stops and groups</p>
-          </div>
+          </Link>  {/* Change closing tag */}
 
           <Link to="/routes" className="home-card">
             <div className="home-card-icon home-card-icon-search" />
@@ -284,7 +287,7 @@ function HomePage() {
         {/* Action cards */}
         <section className="home-card-grid">
           <Link to="/settings" className="home-card">
-            <div className="home-card-icon home-card-icon-star" />
+            <div className="home-card-icon home-card-icon-launch" />
             <p className="home-card-title">Configure SmartLaunch</p>
           </Link>
         </section>
@@ -351,6 +354,7 @@ export default function App() {
       <Route path="/routes" element={<RoutesPage />} />
       <Route path="/stop/:stopId" element={<StopPage />} />
       <Route path="/recent" element={<RecentPage />} />
+      <Route path="/saved" element={<SavedPage />} />  {/* ADD THIS LINE */}
       {/* Settings -> SmartLaunch */}
       <Route path="/settings" element={<SmartLaunchPage />} />
       <Route path="*" element={<HomePage />} />

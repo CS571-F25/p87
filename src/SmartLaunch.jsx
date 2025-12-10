@@ -1,12 +1,11 @@
 // src/SmartLaunch.jsx
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import Map from "react-map-gl/maplibre";
-import "maplibre-gl/dist/maplibre-gl.css";
 
 import "./Home.css";
-import "./components/Map.css"; // optional, but you likely have it
+import "./Map.css"; // optional, but you likely have it
 import { loadSmartLaunchRules, saveSmartLaunchRules } from "./utils/smartLaunch";
+import MapView from "./components/MapView"; // shared map
 
 // helper: approximate meters per pixel for web mercator
 function metersPerPixelAtLat(zoom, lat) {
@@ -21,13 +20,14 @@ function metersPerPixelAtLat(zoom, lat) {
 export default function SmartLaunchPage() {
   const [rules, setRules] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
+  const [editingRuleId, setEditingRuleId] = useState(null);
 
   // form state
   const [stopId, setStopId] = useState("");
   const [startTime, setStartTime] = useState("07:00");
   const [endTime, setEndTime] = useState("12:00");
 
-  // map view state for creation
+  // map view state for creation / editing
   const [viewState, setViewState] = useState({
     longitude: -89.4012,
     latitude: 43.0731,
@@ -42,16 +42,43 @@ export default function SmartLaunchPage() {
     setRules(loadSmartLaunchRules());
   }, []);
 
-  const handleStartCreate = () => {
-    setIsCreating(true);
-    // optional: reset form defaults
+  const resetFormToDefaults = () => {
     setStopId("");
     setStartTime("07:00");
     setEndTime("12:00");
+    setViewState({
+      longitude: -89.4012,
+      latitude: 43.0731,
+      zoom: 15,
+    });
+  };
+
+  const handleStartCreate = () => {
+    setIsCreating(true);
+    setEditingRuleId(null); // ensure we're not in edit mode
+    resetFormToDefaults();
+  };
+
+  const handleStartEdit = (rule) => {
+    setIsCreating(true);
+    setEditingRuleId(rule.id);
+
+    setStopId(rule.stopId ?? "");
+    setStartTime(rule.startTime ?? "07:00");
+    setEndTime(rule.endTime ?? "12:00");
+
+    // center map on the saved rule center; keep current zoom or choose a default
+    setViewState((prev) => ({
+      ...prev,
+      longitude: rule.center?.lon ?? prev.longitude,
+      latitude: rule.center?.lat ?? prev.latitude,
+      zoom: prev.zoom ?? 15,
+    }));
   };
 
   const handleCancelCreate = () => {
     setIsCreating(false);
+    setEditingRuleId(null);
   };
 
   const handleSave = (e) => {
@@ -66,22 +93,42 @@ export default function SmartLaunchPage() {
     const mpp = metersPerPixelAtLat(viewState.zoom, centerLat);
     const radiusMeters = mpp * CIRCLE_RADIUS_PX;
 
-    const newRule = {
-      id: String(Date.now()),
+    const commonData = {
       name: `SmartLaunch for stop ${stopId.trim()}`,
       stopId: stopId.trim(),
       center: { lat: centerLat, lon: centerLon },
       radiusMeters,
       startTime: startTime || null, // "HH:MM"
       endTime: endTime || null,     // "HH:MM"
-      enabled: true,
     };
 
-    const updated = [...rules, newRule];
+    let updated;
+
+    if (editingRuleId) {
+      // update existing rule
+      updated = rules.map((r) =>
+        r.id === editingRuleId
+          ? {
+              ...r,
+              ...commonData,
+            }
+          : r
+      );
+    } else {
+      // create new rule
+      const newRule = {
+        id: String(Date.now()),
+        enabled: true,
+        ...commonData,
+      };
+      updated = [...rules, newRule];
+    }
+
     setRules(updated);
     saveSmartLaunchRules(updated);
 
     setIsCreating(false);
+    setEditingRuleId(null);
   };
 
   const handleToggleEnabled = (id) => {
@@ -96,7 +143,15 @@ export default function SmartLaunchPage() {
     const updated = rules.filter((r) => r.id !== id);
     setRules(updated);
     saveSmartLaunchRules(updated);
+
+    // if we were editing this rule, close the form
+    if (editingRuleId === id) {
+      setIsCreating(false);
+      setEditingRuleId(null);
+    }
   };
+
+  const isEditing = Boolean(editingRuleId);
 
   return (
     <main className="home-root">
@@ -186,13 +241,27 @@ export default function SmartLaunchPage() {
                 <br />
                 Status: {rule.enabled ? "Enabled" : "Disabled"}
               </p>
-              <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.5rem" }}>
+              <div
+                style={{
+                  marginTop: "0.5rem",
+                  display: "flex",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                }}
+              >
                 <button
                   type="button"
                   className="home-footer-link"
                   onClick={() => handleToggleEnabled(rule.id)}
                 >
                   {rule.enabled ? "Disable" : "Enable"}
+                </button>
+                <button
+                  type="button"
+                  className="home-footer-link"
+                  onClick={() => handleStartEdit(rule)}
+                >
+                  Edit
                 </button>
                 <button
                   type="button"
@@ -206,7 +275,7 @@ export default function SmartLaunchPage() {
           ))}
         </section>
 
-        {/* New rule / form */}
+        {/* New / Edit rule form */}
         <section className="home-notice secondary">
           {!isCreating ? (
             <button
@@ -218,7 +287,9 @@ export default function SmartLaunchPage() {
             </button>
           ) : (
             <form onSubmit={handleSave}>
-              <h2 className="home-notice-title">Create SmartLaunch</h2>
+              <h2 className="home-notice-title">
+                {isEditing ? "Edit SmartLaunch" : "Create SmartLaunch"}
+              </h2>
 
               <div style={{ marginBottom: "0.75rem" }}>
                 <label>
@@ -261,21 +332,13 @@ export default function SmartLaunchPage() {
                 style={{
                   position: "relative",
                   width: "100%",
-                  height: "300px",
+                  height: "600px",
                   marginBottom: "0.75rem",
                 }}
               >
-                <Map
-                  {...viewState}
+                <MapView
+                  viewState={viewState}
                   onMove={(evt) => setViewState(evt.viewState)}
-                  style={{ width: "100%", height: "100%" }}
-                  minZoom={13}
-                  maxZoom={18}
-                  mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-                  scrollZoom
-                  doubleClickZoom
-                  dragRotate={false}
-                  touchZoomRotate
                 />
 
                 {/* Fixed circle overlay in the center of the map */}
@@ -295,9 +358,9 @@ export default function SmartLaunchPage() {
                 />
               </div>
 
-              <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
                 <button type="submit" className="home-footer-link">
-                  Save SmartLaunch
+                  {isEditing ? "Save changes" : "Save SmartLaunch"}
                 </button>
                 <button
                   type="button"

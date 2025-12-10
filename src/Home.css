@@ -162,51 +162,57 @@
   }
   
   .home-card-icon {
-    width: 42px;
-    height: 42px;
-    background: #e5e7eb;
+    width: 50px;
+    height: 50px;
   }
   
   /* little variations so they don’t all look identical */
   .home-card-icon-star {
-    background: radial-gradient(circle at 30% 20%, #facc15, #e5e7eb);
-    background-image: url(./assets/btclockicon.svg);
+    background-image: url(./assets/5btv2clock.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
   
   .home-card-icon-map {
-    background: radial-gradient(circle at 60% 30%, #38bdf8, #e5e7eb);
-    background-image: url(./assets/btv2logoblack.svg);
+    background-image: url(./assets/5btv2map.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
   
   .home-card-icon-location {
-    background: radial-gradient(circle at 40% 70%, #22c55e, #e5e7eb);
-    background-image: url(./assets/btv2locationarrowicon.svg);
+    background-image: url(./assets/5btv2location.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
   
   .home-card-icon-saved {
-    background: radial-gradient(circle at 60% 60%, #fb7185, #e5e7eb);
-    background-image: url(./assets/btv2staricon.svg);
+    background-image: url(./assets/5btv2favorites.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
   
   .home-card-icon-search {
-    background: radial-gradient(circle at 50% 50%, #a855f7, #e5e7eb);
-    background-image: url(./assets/btv2editicon.svg);
+    background-image: url(./assets/5btv2search.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
 
   .home-card-icon-routes{
-    background: radial-gradient(circle at 50% 50%, #a855f7, #e5e7eb);
-    background-image: url(./assets/btv2routesicon.svg);
+    background-image: url(./assets/5btv2routes.svg);
     background-repeat: no-repeat;
+    background-size: 65%;
+    background-position: center;
+  }
+
+  .home-card-icon-launch{
+    background-image: url(./assets/5btv2launch.svg);
+    background-repeat: no-repeat;
+    background-size: 65%;
     background-position: center;
   }
   
@@ -423,7 +429,7 @@
   --radius: 41px;
   --circumference: 257.61;
   --dash: calc((var(--progress) * var(--circumference)) / 100);
-  animation: smartlaunch-progress-animation 1.5s linear 0s 1 forwards;
+  animation: smartlaunch-progress-animation 1s linear 0s 1 forwards;
 }
 
 .smartlaunch-progress-svg circle {

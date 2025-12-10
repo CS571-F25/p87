@@ -12,6 +12,7 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "lucide-react": "^0.548.0",
+    "mapbox-gl": "^3.17.0",
     "maplibre-gl": "^4.7.1",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",

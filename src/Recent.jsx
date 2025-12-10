@@ -1,6 +1,6 @@
 // src/Recent.jsx
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, NavLink} from "react-router-dom";
 import "./Stops.css";
 
 const STORAGE_KEY = "bt_recent_stops";
@@ -66,23 +66,63 @@ export default function RecentPage() {
     <main className="stop-root">
       <section className="stop-inner">
         {/* HEADER – same as StopPage, clickable back to home */}
-        <header className="routes-header-wrapper">
-          <Link to="/" className="routes-header-link">
-            <div className="home-header">
-              <div className="home-logo">
-                <div className="home-logo-square" />
-                <div className="home-wordmark">
-                  <div className="home-logo-text-main">badger</div>
-                  <div className="home-logo-text-sub">transit</div>
-                </div>
-              </div>
-
-              <div className="home-clock">
-                <div className="home-clock-date">{dateString}</div>
-                <div className="home-clock-time">{timeString}</div>
+        <header className="home-header">
+        <Link to="/" className="routes-header-link">
+          <div className="home-header-top">
+            <div className="home-logo">
+              <div className="home-logo-square" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
               </div>
             </div>
+
+            <div className="home-clock">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
+            </div>
+          </div>
           </Link>
+
+          {/* Tab nav */}
+          <nav className="home-nav">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Home
+            </NavLink>
+
+            <NavLink
+              to="/recent" // hook this up to your timetable page later if you want
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Recent
+            </NavLink>
+
+            <NavLink
+              to="/map"
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Map
+            </NavLink>
+
+            <NavLink
+              to="/routes" // now points to SmartLaunchPage
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Routes
+            </NavLink>
+          </nav>
         </header>
 
         {/* PAGE TITLE BAR */}

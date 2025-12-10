@@ -1,26 +1,56 @@
 // src/StopPage.jsx
 import { useEffect, useState } from "react";
-import { NavLink, useParams, useNavigate } from "react-router-dom";
+import { NavLink, useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import "./Stops.css";
 import "./Home.css";
 
 const ROUTE_COLORS = {
-  A: "#FF0000",
+  // Bus Rapid Transit
+  A:  "#FF0000",
   A1: "#FF0000",
   A2: "#FF0000",
-  B: "#84BC00",
-  F: "#0039AA",
+  B:  "#84BC00",
+  F:  "#0039AA",
+
+  // Campus Buses
   80: "#FF7300",
-  81: "#00B7C8",
-  82: "#BC009D",
+  81: "#FF7300",
+  82: "#00B7C8",
   84: "#C1C800",
+
+  // Standard Service
+  C:  "#00B7C8",
+  D:  "#FFA600",
+  D1:  "#FFA600",
+  D2:  "#FFA600",
+  E:  "#C1C800",
+  G:  "#00B7C8",
+  H:  "#C1C800",
+  J:  "#C1C800",
+  L:  "#9269EB",
+  O:  "#BC009D",
+  P:  "#C1C800",
+  R:  "#BC009D",
+  R1:  "#BC009D",
+  R2:  "#BC009D",
+  S:  "#C1C800",
+  W:  "#9269EB",
+  28: "#0039AA",
+  38: "#FF7300",
+  55: "#FFA600",
+  60: "#9269EB",
+  61: "#9269EB",
+  62: "#FFA600",
+  63: "#9269EB",
+  64: "#FF7300",
+  65: "#BC009D",
+  75: "#9269EB",
 };
 
 function getRouteColor(code) {
   return ROUTE_COLORS[code] || "#000000";
 }
 
-// format "20251115 21:43" -> "9:43 PM"
 function formatArrivalTime(predicted_time) {
   if (!predicted_time) return "";
   const [, timePart] = predicted_time.split(" ");
@@ -56,7 +86,6 @@ function formatStopsAway(pred) {
 }
 
 function getOccupancyDots(occupancy) {
-  // EMPTY / HALF_EMPTY / FULL / null
   if (occupancy === "N/A") return 5;
   if (occupancy === "EMPTY") return 1;
   if (occupancy === "HALF_EMPTY") return 3;
@@ -64,9 +93,7 @@ function getOccupancyDots(occupancy) {
   return 0;
 }
 
-/* ========= CARD COMPONENTS ========= */
-
-function RegularBusCard({ pred, onTrack }) {
+function RegularBusCard({ pred, onTrack, stopName }) {
   const arrivalLabel = formatArrivalTime(pred.predicted_time);
   const stopsAwayText = formatStopsAway(pred);
   const occDots = getOccupancyDots(pred.occupancy || "");
@@ -82,7 +109,6 @@ function RegularBusCard({ pred, onTrack }) {
 
       <div className="bus-card-main">
         <div className="bus-card-left">
-          {/* top row */}
           <div className="bus-card-top">
             <div className="bus-card-destination">{pred.destination}</div>
             <div className="bus-card-times">
@@ -92,7 +118,6 @@ function RegularBusCard({ pred, onTrack }) {
             </div>
           </div>
 
-          {/* second row */}
           <div className="bus-card-bottom">
             <div className="bus-card-occupancy">
               <div className="bus-card-dots">
@@ -105,13 +130,15 @@ function RegularBusCard({ pred, onTrack }) {
                   />
                 ))}
               </div>
-              <span className="bus-card-sub">{stopsAwayText}</span>
+              <span className="bus-card-sub">
+                {stopsAwayText}
+                {stopName && ` • at ${stopName}`}
+              </span>
             </div>
             <div className="bus-card-clock">{arrivalLabel}</div>
           </div>
         </div>
 
-        {/* right column with Track */}
         <div className="bus-card-right">
           <button
             className="bus-card-track"
@@ -127,9 +154,8 @@ function RegularBusCard({ pred, onTrack }) {
   );
 }
 
-function ShortBusCard({ pred }) {
+function ShortBusCard({ pred, stopName }) {
   const arrivalLabel = formatArrivalTime(pred.predicted_time);
-  const stopsAwayText = formatStopsAway(pred);
 
   return (
     <article className="bus-card-short">
@@ -142,7 +168,6 @@ function ShortBusCard({ pred }) {
 
       <div className="bus-card-main">
         <div className="bus-card-left">
-          {/* top row */}
           <div className="bus-card-top">
             <div className="bus-card-destination">{pred.destination}</div>
             <div className="bus-card-times">
@@ -152,18 +177,17 @@ function ShortBusCard({ pred }) {
             </div>
           </div>
 
-          {/* second row */}
           <div className="bus-card-bottom">
             <div className="bus-card-occupancy">
               <span className="bus-card-sub">
-                Too far to track info
+                This bus is too far to track
+                {stopName && ` • at ${stopName}`}
               </span>
             </div>
             <div className="bus-card-clock">{arrivalLabel}</div>
           </div>
         </div>
 
-        {/* right column with Track */}
         <div className="bus-card-right">
           <div className="bus-card-track-short">--------</div>
         </div>
@@ -172,43 +196,60 @@ function ShortBusCard({ pred }) {
   );
 }
 
-/* ========= MAIN PAGE ========= */
-
 export default function StopPage() {
   const { stopId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const [data, setData] = useState(null); // whole response
+  // Get additional stops from query params
+  const additionalStopsParam = searchParams.get('stops');
+  const additionalStops = additionalStopsParam 
+    ? additionalStopsParam.split(',').filter(Boolean)
+    : [];
+
+  // All stops to display (primary + additional)
+  const allStopIds = [stopId, ...additionalStops];
+  const isMultiStop = allStopIds.length > 1;
+
+  const [stopsData, setStopsData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- fetch predictions for this stop ---
+  // Fetch predictions for all stops
   useEffect(() => {
-    if (!stopId) return;
+    if (allStopIds.length === 0) return;
 
     setLoading(true);
     setError(null);
 
-    fetch(
-      `https://badger-transit-dawn-darkness-55.fly.dev/api/predictions/${stopId}`
+    Promise.all(
+      allStopIds.map(id =>
+        fetch(`https://badger-transit-dawn-darkness-55.fly.dev/api/predictions/${id}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`Failed to load stop ${id}`);
+            return res.json();
+          })
+          .then(json => ({
+            stopId: id,
+            results: json.results || []
+          }))
+      )
     )
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load predictions");
-        return res.json();
+      .then(results => {
+        const dataMap = {};
+        results.forEach(({ stopId: id, results: preds }) => {
+          dataMap[id] = preds.sort(
+            (a, b) => (a.eta_minutes ?? 9999) - (b.eta_minutes ?? 9999)
+          );
+        });
+        setStopsData(dataMap);
       })
-      .then((json) => {
-        // sort soonest first
-        const sorted = [...(json.results || [])].sort(
-          (a, b) => (a.eta_minutes ?? 9999) - (b.eta_minutes ?? 9999)
-        );
-        setData({ ...json, results: sorted });
-      })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         setError(err.message || "Error loading predictions");
       })
       .finally(() => setLoading(false));
-  }, [stopId]);
+  }, [allStopIds.join(',')]);
 
   const now = new Date();
   const timeString = now.toLocaleTimeString([], {
@@ -221,10 +262,11 @@ export default function StopPage() {
     day: "numeric",
   });
 
-  const stopName =
-    stopId === "10070" ? "W Johnson at East Campus" : `Stop ${stopId}`;
+  const getStopName = (id) => {
+    return id === "10070" ? "W Johnson at East Campus" : `Stop ${id}`;
+  };
 
-  // --- persist this stop into localStorage as a "recent stop" ---
+  // Persist recent stop
   useEffect(() => {
     if (!stopId) return;
 
@@ -242,46 +284,112 @@ export default function StopPage() {
         }
       }
 
-      // remove any existing entry for this stop
       recent = recent.filter((item) => item.stopId !== stopId);
 
-      // add to the front
       recent.unshift({
         stopId,
-        name: stopName,
+        name: getStopName(stopId),
         lastVisited: new Date().toISOString(),
       });
 
-      // keep only latest 10
       recent = recent.slice(0, 10);
-
       localStorage.setItem(STORAGE_KEY, JSON.stringify(recent));
     } catch (e) {
       console.error("Failed to persist recent stop", e);
     }
-  }, [stopId, stopName]);
+  }, [stopId]);
+
+  const handleAddStop = () => {
+    const currentStops = allStopIds.join(',');
+    navigate(`/map?selectMode=true&returnTo=/stop/${stopId}&existingStops=${currentStops}`);
+  };
+
+  const handleSaveStop = () => {
+    try {
+      const SAVED_KEY = "bt_saved_stops";
+      const raw = localStorage.getItem(SAVED_KEY);
+      let saved = [];
+
+      if (raw) {
+        try {
+          saved = JSON.parse(raw);
+          if (!Array.isArray(saved)) saved = [];
+        } catch {
+          saved = [];
+        }
+      }
+
+      const groupName = isMultiStop
+        ? window.prompt("Name this stop group:", `Group ${saved.length + 1}`)
+        : window.prompt("Name this stop:", getStopName(stopId));
+
+      if (!groupName) return;
+
+      const newItem = {
+        id: `saved_${Date.now()}`,
+        name: groupName,
+        stopIds: allStopIds,
+        isGroup: isMultiStop,
+        savedAt: new Date().toISOString(),
+      };
+
+      saved.unshift(newItem);
+      localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+
+      navigate('/saved');
+    } catch (e) {
+      console.error("Failed to save stop", e);
+      alert("Failed to save stop. Please try again.");
+    }
+  };
+
+  const handleRemoveStop = (idToRemove) => {
+    const remaining = allStopIds.filter(id => id !== idToRemove);
+    if (remaining.length === 0) {
+      navigate('/');
+      return;
+    }
+    
+    const [primary, ...others] = remaining;
+    const stopsParam = others.length > 0 ? `?stops=${others.join(',')}` : '';
+    navigate(`/stop/${primary}${stopsParam}`);
+  };
+
+  // Combine and sort all predictions
+  const allPredictions = [];
+  Object.keys(stopsData).forEach(id => {
+    const preds = stopsData[id] || [];
+    preds.forEach(pred => {
+      allPredictions.push({
+        ...pred,
+        sourceStopId: id,
+        sourceStopName: getStopName(id)
+      });
+    });
+  });
+  allPredictions.sort((a, b) => (a.eta_minutes ?? 9999) - (b.eta_minutes ?? 9999));
 
   return (
     <main className="stop-root">
       <section className="stop-inner">
-        {/* HEADER */}
         <header className="home-header">
-          <div className="home-header-top">
-            <div className="home-logo">
-              <div className="home-logo-square" />
-              <div className="home-wordmark">
-                <div className="home-logo-text-main">badger</div>
-                <div className="home-logo-text-sub">transit</div>
+          <Link to="/" className="routes-header-link">
+            <div className="home-header-top">
+              <div className="home-logo">
+                <div className="home-logo-square" />
+                <div className="home-wordmark">
+                  <div className="home-logo-text-main">badger</div>
+                  <div className="home-logo-text-sub">transit</div>
+                </div>
+              </div>
+
+              <div className="home-clock">
+                <div className="home-clock-date">{dateString}</div>
+                <div className="home-clock-time">{timeString}</div>
               </div>
             </div>
+          </Link>
 
-            <div className="home-clock">
-              <div className="home-clock-date">{dateString}</div>
-              <div className="home-clock-time">{timeString}</div>
-            </div>
-          </div>
-
-          {/* Tab nav */}
           <nav className="home-nav">
             <NavLink
               to="/"
@@ -294,12 +402,21 @@ export default function StopPage() {
             </NavLink>
 
             <NavLink
-              to="/stop/10070"
+              to="/recent"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
             >
-              Timetable
+              Recent
+            </NavLink>
+
+            <NavLink
+              to="/map"
+              className={({ isActive }) =>
+                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
+              }
+            >
+              Map
             </NavLink>
 
             <NavLink
@@ -310,76 +427,101 @@ export default function StopPage() {
             >
               Routes
             </NavLink>
-
-            <NavLink
-              to="/settings"
-              className={({ isActive }) =>
-                `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
-              }
-            >
-              Settings
-            </NavLink>
           </nav>
         </header>
 
-        {/* STOP INFO BAR */}
         <section className="stop-header-bar">
           <div className="stop-header-left">
-            <button className="stop-header-circle" type="button">
+            <button 
+              className="stop-header-circle" 
+              type="button"
+              onClick={() => navigate(-1)}
+            >
               ×
             </button>
             <div className="stop-header-text">
-              <div className="stop-header-title">Stop #{stopId}</div>
-              <div className="stop-header-subtitle">{stopName}</div>
+              <div className="stop-header-title">
+                {isMultiStop ? `${allStopIds.length} Stops` : `Stop #${stopId}`}
+              </div>
+              <div className="stop-header-subtitle">
+                {isMultiStop 
+                  ? allStopIds.map(getStopName).join(' • ')
+                  : getStopName(stopId)
+                }
+              </div>
             </div>
           </div>
 
           <div className="stop-header-actions">
-            <button className="stop-add-btn" type="button">
+            <button 
+              className="stop-add-btn" 
+              type="button"
+              onClick={handleAddStop}
+            >
               + Add stop
             </button>
-            <button className="stop-save-btn" type="button">
-              Save Stop
+            <button 
+              className="stop-save-btn" 
+              type="button"
+              onClick={handleSaveStop}
+            >
+              {isMultiStop ? 'Save Group' : 'Save Stop'}
             </button>
           </div>
         </section>
 
-        {/* COLUMN LABELS */}
+        {isMultiStop && (
+          <section className="stop-chips">
+            {allStopIds.map(id => (
+              <div key={id} className="stop-chip">
+                <span>Stop {id}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveStop(id)}
+                  className="stop-chip-remove"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </section>
+        )}
+
         <section className="stop-label-row">
           <span>Route</span>
           <span>Bus Info</span>
         </section>
 
-        {/* BUS CARDS */}
         <section className="stop-cards">
           {loading && <div className="stop-loading">Loading buses…</div>}
           {error && <div className="stop-error">{error}</div>}
 
-          {!loading && !error && data && data.results.length === 0 && (
-            <div className="stop-empty">No upcoming buses at this stop.</div>
+          {!loading && !error && allPredictions.length === 0 && (
+            <div className="stop-empty">No upcoming buses at these stops.</div>
           )}
 
           {!loading &&
             !error &&
-            data &&
-            data.results.map((pred) => {
+            allPredictions.map((pred) => {
               const stopsAwayText = formatStopsAway(pred);
               const isEnRoute = stopsAwayText === "En Route";
-              const key =
-                pred.trip_uid || `${pred.route}-${pred.predicted_time}`;
+              const key = `${pred.sourceStopId}-${pred.trip_uid || pred.route}-${pred.predicted_time}`;
 
               const handleTrack = () => {
                 if (!pred.vehicle_id) return;
-                navigate(`/map/${stopId}/${pred.vehicle_id}`);
+                navigate(`/map/${pred.sourceStopId}/${pred.vehicle_id}`);
               };
 
+              const stopLabel = isMultiStop ? pred.sourceStopName : null;
+
               return isEnRoute ? (
-                <ShortBusCard key={key} pred={pred} />
+                <ShortBusCard key={key} pred={pred} stopName={stopLabel} />
               ) : (
                 <RegularBusCard
                   key={key}
                   pred={pred}
                   onTrack={pred.vehicle_id ? handleTrack : undefined}
+                  stopName={stopLabel}
                 />
               );
             })}
@@ -389,10 +531,9 @@ export default function StopPage() {
 
         <section className="stop-report-card">
           <div className="stop-report-icon" />
-          <span>Report an issue at this bus stop</span>
+          <span>Report an issue at {isMultiStop ? 'these stops' : 'this bus stop'}</span>
         </section>
 
-        {/* FOOTER */}
         <footer className="home-footer routes-footer">
           <div className="home-footer-left">
             <div className="home-logo-small-square" />
