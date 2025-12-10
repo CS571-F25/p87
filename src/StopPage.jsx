@@ -93,16 +93,29 @@ function getOccupancyDots(occupancy) {
   return 0;
 }
 
+function getOccupancyLabel(occupancy) {
+  if (occupancy === "N/A") return "Unknown occupancy";
+  if (occupancy === "EMPTY") return "Empty";
+  if (occupancy === "HALF_EMPTY") return "Half full";
+  if (occupancy === "FULL") return "Full";
+  return "Unknown occupancy";
+}
+
 function RegularBusCard({ pred, onTrack, stopName }) {
   const arrivalLabel = formatArrivalTime(pred.predicted_time);
   const stopsAwayText = formatStopsAway(pred);
   const occDots = getOccupancyDots(pred.occupancy || "");
+  const occLabel = getOccupancyLabel(pred.occupancy || "");
 
   return (
-    <article className="bus-card">
+    <article 
+      className="bus-card"
+      aria-label={`Route ${pred.route} to ${pred.destination}, arriving in ${pred.eta_minutes} minutes${stopName ? ` at ${stopName}` : ''}`}
+    >
       <div
         className="bus-card-route"
         style={{ backgroundColor: getRouteColor(pred.route) }}
+        aria-label={`Route ${pred.route}`}
       >
         {pred.route}
       </div>
@@ -112,7 +125,7 @@ function RegularBusCard({ pred, onTrack, stopName }) {
           <div className="bus-card-top">
             <div className="bus-card-destination">{pred.destination}</div>
             <div className="bus-card-times">
-              <div className="bus-card-eta">
+              <div className="bus-card-eta" aria-label={`Estimated arrival: ${pred.eta_minutes} minutes`}>
                 {pred.eta_minutes != null ? `${pred.eta_minutes} min` : "--"}
               </div>
             </div>
@@ -120,13 +133,14 @@ function RegularBusCard({ pred, onTrack, stopName }) {
 
           <div className="bus-card-bottom">
             <div className="bus-card-occupancy">
-              <div className="bus-card-dots">
+              <div className="bus-card-dots" aria-label={occLabel}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
                     key={i}
                     className={
                       "occ-dot" + (i < occDots ? " occ-dot-filled" : "")
                     }
+                    aria-hidden="true"
                   />
                 ))}
               </div>
@@ -145,6 +159,7 @@ function RegularBusCard({ pred, onTrack, stopName }) {
             type="button"
             onClick={onTrack}
             disabled={!onTrack}
+            aria-label={`Track bus ${pred.vehicle_id || ''} on route ${pred.route}`}
           >
             Track
           </button>
@@ -158,10 +173,14 @@ function ShortBusCard({ pred, stopName }) {
   const arrivalLabel = formatArrivalTime(pred.predicted_time);
 
   return (
-    <article className="bus-card-short">
+    <article 
+      className="bus-card-short"
+      aria-label={`Route ${pred.route} to ${pred.destination}, arriving in ${pred.eta_minutes} minutes, too far to track${stopName ? ` at ${stopName}` : ''}`}
+    >
       <div
         className="bus-card-route"
         style={{ backgroundColor: getRouteColor(pred.route) }}
+        aria-label={`Route ${pred.route}`}
       >
         {pred.route}
       </div>
@@ -171,7 +190,7 @@ function ShortBusCard({ pred, stopName }) {
           <div className="bus-card-top">
             <div className="bus-card-destination">{pred.destination}</div>
             <div className="bus-card-times">
-              <div className="bus-card-eta">
+              <div className="bus-card-eta" aria-label={`Estimated arrival: ${pred.eta_minutes} minutes`}>
                 {pred.eta_minutes != null ? `${pred.eta_minutes} min` : "--"}
               </div>
             </div>
@@ -189,7 +208,7 @@ function ShortBusCard({ pred, stopName }) {
         </div>
 
         <div className="bus-card-right">
-          <div className="bus-card-track-short">--------</div>
+          <div className="bus-card-track-short" aria-hidden="true">--------</div>
         </div>
       </div>
     </article>
@@ -319,6 +338,7 @@ export default function StopPage() {
         }
       }
 
+      // TODO: Replace with accessible modal dialog
       const groupName = isMultiStop
         ? window.prompt("Name this stop group:", `Group ${saved.length + 1}`)
         : window.prompt("Name this stop:", getStopName(stopId));
@@ -369,28 +389,30 @@ export default function StopPage() {
   });
   allPredictions.sort((a, b) => (a.eta_minutes ?? 9999) - (b.eta_minutes ?? 9999));
 
+  const pageTitle = isMultiStop 
+    ? `${allStopIds.length} Stops - ${allStopIds.map(getStopName).join(', ')}`
+    : `Stop ${stopId} - ${getStopName(stopId)}`;
+
   return (
     <main className="stop-root">
-      <section className="stop-inner">
+      <div className="stop-inner">
         <header className="home-header">
-          <Link to="/" className="routes-header-link">
-            <div className="home-header-top">
-              <div className="home-logo">
-                <div className="home-logo-square" />
-                <div className="home-wordmark">
-                  <div className="home-logo-text-main">badger</div>
-                  <div className="home-logo-text-sub">transit</div>
-                </div>
+          <div className="home-header-top">
+            <Link to="/" className="home-logo" aria-label="BadgerTransit Home">
+              <div className="home-logo-square" aria-hidden="true" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
               </div>
+            </Link>
 
-              <div className="home-clock">
-                <div className="home-clock-date">{dateString}</div>
-                <div className="home-clock-time">{timeString}</div>
-              </div>
+            <div className="home-clock" aria-live="off">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
             </div>
-          </Link>
+          </div>
 
-          <nav className="home-nav">
+          <nav className="home-nav" aria-label="Primary navigation">
             <NavLink
               to="/"
               end
@@ -430,19 +452,20 @@ export default function StopPage() {
           </nav>
         </header>
 
-        <section className="stop-header-bar">
+        <section className="stop-header-bar" aria-labelledby="stop-title">
           <div className="stop-header-left">
             <button 
               className="stop-header-circle" 
               type="button"
               onClick={() => navigate(-1)}
+              aria-label="Go back to previous page"
             >
               ×
             </button>
             <div className="stop-header-text">
-              <div className="stop-header-title">
+              <h1 id="stop-title" className="stop-header-title">
                 {isMultiStop ? `${allStopIds.length} Stops` : `Stop #${stopId}`}
-              </div>
+              </h1>
               <div className="stop-header-subtitle">
                 {isMultiStop 
                   ? allStopIds.map(getStopName).join(' • ')
@@ -457,6 +480,7 @@ export default function StopPage() {
               className="stop-add-btn" 
               type="button"
               onClick={handleAddStop}
+              aria-label="Add another stop to this view"
             >
               + Add stop
             </button>
@@ -464,6 +488,7 @@ export default function StopPage() {
               className="stop-save-btn" 
               type="button"
               onClick={handleSaveStop}
+              aria-label={isMultiStop ? "Save this group of stops" : "Save this stop"}
             >
               {isMultiStop ? 'Save Group' : 'Save Stop'}
             </button>
@@ -471,7 +496,7 @@ export default function StopPage() {
         </section>
 
         {isMultiStop && (
-          <section className="stop-chips">
+          <section className="stop-chips" aria-label="Selected stops">
             {allStopIds.map(id => (
               <div key={id} className="stop-chip">
                 <span>Stop {id}</span>
@@ -479,6 +504,7 @@ export default function StopPage() {
                   type="button"
                   onClick={() => handleRemoveStop(id)}
                   className="stop-chip-remove"
+                  aria-label={`Remove stop ${id} from this group`}
                 >
                   ×
                 </button>
@@ -487,17 +513,32 @@ export default function StopPage() {
           </section>
         )}
 
-        <section className="stop-label-row">
+        <div className="stop-label-row" role="presentation">
           <span>Route</span>
           <span>Bus Info</span>
-        </section>
+        </div>
 
-        <section className="stop-cards">
-          {loading && <div className="stop-loading">Loading buses…</div>}
-          {error && <div className="stop-error">{error}</div>}
+        <section className="stop-cards" aria-labelledby="upcoming-buses-title">
+          <h2 id="upcoming-buses-title" className="visually-hidden">
+            Upcoming Buses
+          </h2>
+
+          {loading && (
+            <div className="stop-loading" role="status" aria-live="polite">
+              Loading buses…
+            </div>
+          )}
+          
+          {error && (
+            <div className="stop-error" role="alert" aria-live="assertive">
+              {error}
+            </div>
+          )}
 
           {!loading && !error && allPredictions.length === 0 && (
-            <div className="stop-empty">No upcoming buses at these stops.</div>
+            <div className="stop-empty" role="status">
+              No upcoming buses at {isMultiStop ? 'these stops' : 'this stop'}.
+            </div>
           )}
 
           {!loading &&
@@ -527,29 +568,37 @@ export default function StopPage() {
             })}
         </section>
 
-        <div className="stop-end-label">End of Bus Information</div>
+        <div className="stop-end-label" role="separator">
+          End of Bus Information
+        </div>
 
         <section className="stop-report-card">
-          <div className="stop-report-icon" />
+          <div className="stop-report-icon" aria-hidden="true" />
           <span>Report an issue at {isMultiStop ? 'these stops' : 'this bus stop'}</span>
         </section>
 
         <footer className="home-footer routes-footer">
           <div className="home-footer-left">
-            <div className="home-logo-small-square" />
+            <div className="home-logo-small-square" aria-hidden="true" />
             <span className="home-footer-brand">badger transit</span>
           </div>
           <div className="home-footer-links">
-            <button className="home-footer-link" type="button">
+            <a 
+              href="mailto:support@badgertransit.com?subject=Bug Report" 
+              className="home-footer-link"
+            >
               report a bug
-            </button>
-            <button className="home-footer-link" type="button">
+            </a>
+            <a 
+              href="/terms" 
+              className="home-footer-link"
+            >
               terms of service
-            </button>
+            </a>
           </div>
           <div className="home-footer-meta">badgertransit ©2026</div>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }

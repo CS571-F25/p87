@@ -64,28 +64,26 @@ export default function RecentPage() {
 
   return (
     <main className="stop-root">
-      <section className="stop-inner">
-        {/* HEADER – same as StopPage, clickable back to home */}
+      <div className="stop-inner">
+        {/* HEADER */}
         <header className="home-header">
-        <Link to="/" className="routes-header-link">
           <div className="home-header-top">
-            <div className="home-logo">
-              <div className="home-logo-square" />
+            <Link to="/" className="home-logo" aria-label="BadgerTransit Home">
+              <div className="home-logo-square" aria-hidden="true" />
               <div className="home-wordmark">
                 <div className="home-logo-text-main">badger</div>
                 <div className="home-logo-text-sub">transit</div>
               </div>
-            </div>
+            </Link>
 
-            <div className="home-clock">
+            <div className="home-clock" aria-live="off">
               <div className="home-clock-date">{dateString}</div>
               <div className="home-clock-time">{timeString}</div>
             </div>
           </div>
-          </Link>
 
           {/* Tab nav */}
-          <nav className="home-nav">
+          <nav className="home-nav" aria-label="Primary navigation">
             <NavLink
               to="/"
               end
@@ -97,7 +95,7 @@ export default function RecentPage() {
             </NavLink>
 
             <NavLink
-              to="/recent" // hook this up to your timetable page later if you want
+              to="/recent"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -115,7 +113,7 @@ export default function RecentPage() {
             </NavLink>
 
             <NavLink
-              to="/routes" // now points to SmartLaunchPage
+              to="/routes"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -126,10 +124,12 @@ export default function RecentPage() {
         </header>
 
         {/* PAGE TITLE BAR */}
-        <section className="stop-header-bar">
+        <section className="stop-header-bar" aria-labelledby="recent-title">
           <div className="stop-header-left">
             <div className="stop-header-text">
-              <div className="stop-header-title">Recent stops</div>
+              <h1 id="recent-title" className="stop-header-title">
+                Recent stops
+              </h1>
               <div className="stop-header-subtitle">
                 Stops you&apos;ve viewed recently
               </div>
@@ -137,16 +137,20 @@ export default function RecentPage() {
           </div>
         </section>
 
-        {/* COLUMN LABELS (reuse style) */}
-        <section className="stop-label-row">
+        {/* COLUMN LABELS */}
+        <div className="stop-label-row" role="presentation">
           <span>Stop</span>
           <span>Last visited</span>
-        </section>
+        </div>
 
-        {/* RECENT STOP CARDS – reuse bus-card styling */}
-        <section className="stop-cards">
+        {/* RECENT STOP CARDS */}
+        <section className="stop-cards" aria-labelledby="recent-stops-list">
+          <h2 id="recent-stops-list" className="visually-hidden">
+            Recently Visited Stops
+          </h2>
+
           {recentStops.length === 0 && (
-            <div className="stop-empty">
+            <div className="stop-empty" role="status">
               You haven&apos;t viewed any stops yet.
             </div>
           )}
@@ -155,13 +159,15 @@ export default function RecentPage() {
             <Link
               key={stop.stopId}
               to={`/stop/${stop.stopId}`}
-              style={{ textDecoration: "none", color: "inherit" }}
+              className="recent-stop-link"
+              aria-label={`View stop ${stop.stopId}, ${stop.name || `Stop ${stop.stopId}`}, last visited ${formatLastVisited(stop.lastVisited)}`}
             >
               <article className="bus-card">
-                {/* reuse bus-card-route as left pill, use a neutral color */}
+                {/* Stop ID badge */}
                 <div
                   className="bus-card-route"
                   style={{ backgroundColor: "#111827" }}
+                  aria-label={`Stop ${stop.stopId}`}
                 >
                   {stop.stopId}
                 </div>
@@ -182,7 +188,7 @@ export default function RecentPage() {
                     <div className="bus-card-bottom">
                       <div className="bus-card-occupancy">
                         {/* empty dot row just to keep layout consistent */}
-                        <div className="bus-card-dots">
+                        <div className="bus-card-dots" aria-hidden="true">
                           {Array.from({ length: 5 }).map((_, i) => (
                             <span key={i} className="occ-dot" />
                           ))}
@@ -191,15 +197,14 @@ export default function RecentPage() {
                           Tap to view arrivals
                         </span>
                       </div>
-                      {/* right side left blank here; clock slot unused */}
                       <div className="bus-card-clock" />
                     </div>
                   </div>
 
                   <div className="bus-card-right">
-                    <button className="bus-card-track" type="button">
+                    <span className="bus-card-track-label" aria-hidden="true">
                       View stop
-                    </button>
+                    </span>
                   </div>
                 </div>
               </article>
@@ -207,23 +212,29 @@ export default function RecentPage() {
           ))}
         </section>
 
-        {/* FOOTER same as other pages */}
+        {/* FOOTER */}
         <footer className="home-footer routes-footer">
           <div className="home-footer-left">
-            <div className="home-logo-small-square" />
+            <div className="home-logo-small-square" aria-hidden="true" />
             <span className="home-footer-brand">badger transit</span>
           </div>
           <div className="home-footer-links">
-            <button className="home-footer-link" type="button">
+            <a 
+              href="mailto:support@badgertransit.com?subject=Bug Report" 
+              className="home-footer-link"
+            >
               report a bug
-            </button>
-            <button className="home-footer-link" type="button">
+            </a>
+            <a 
+              href="/terms" 
+              className="home-footer-link"
+            >
               terms of service
-            </button>
+            </a>
           </div>
           <div className="home-footer-meta">badgertransit ©2026</div>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }

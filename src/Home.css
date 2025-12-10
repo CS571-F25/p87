@@ -512,3 +512,14 @@
     --progress: 100;
   }
 }
+
+.home-footer-link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--text-main);
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-family: inherit;
+}

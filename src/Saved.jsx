@@ -56,6 +56,7 @@ export default function SavedPage() {
     e.preventDefault();
     e.stopPropagation();
 
+    // TODO: Replace with accessible modal dialog
     if (!window.confirm("Delete this saved stop/group?")) return;
 
     try {
@@ -86,28 +87,26 @@ export default function SavedPage() {
 
   return (
     <main className="stop-root">
-      <section className="stop-inner">
+      <div className="stop-inner">
         {/* HEADER */}
         <header className="home-header">
-          <Link to="/" className="routes-header-link">
-            <div className="home-header-top">
-              <div className="home-logo">
-                <div className="home-logo-square" />
-                <div className="home-wordmark">
-                  <div className="home-logo-text-main">badger</div>
-                  <div className="home-logo-text-sub">transit</div>
-                </div>
+          <div className="home-header-top">
+            <Link to="/" className="home-logo" aria-label="BadgerTransit Home">
+              <div className="home-logo-square" aria-hidden="true" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
               </div>
+            </Link>
 
-              <div className="home-clock">
-                <div className="home-clock-date">{dateString}</div>
-                <div className="home-clock-time">{timeString}</div>
-              </div>
+            <div className="home-clock" aria-live="off">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
             </div>
-          </Link>
+          </div>
 
           {/* Tab nav */}
-          <nav className="home-nav">
+          <nav className="home-nav" aria-label="Primary navigation">
             <NavLink
               to="/"
               end
@@ -148,10 +147,12 @@ export default function SavedPage() {
         </header>
 
         {/* PAGE TITLE BAR */}
-        <section className="stop-header-bar">
+        <section className="stop-header-bar" aria-labelledby="saved-title">
           <div className="stop-header-left">
             <div className="stop-header-text">
-              <div className="stop-header-title">Saved stops</div>
+              <h1 id="saved-title" className="stop-header-title">
+                Saved stops
+              </h1>
               <div className="stop-header-subtitle">
                 Your saved stops and groups
               </div>
@@ -160,128 +161,134 @@ export default function SavedPage() {
         </section>
 
         {/* COLUMN LABELS */}
-        <section className="stop-label-row">
+        <div className="stop-label-row" role="presentation">
           <span>Stop</span>
           <span>Saved</span>
-        </section>
+        </div>
 
         {/* SAVED STOP CARDS */}
-        <section className="stop-cards">
+        <section className="stop-cards" aria-labelledby="saved-stops-list">
+          <h2 id="saved-stops-list" className="visually-hidden">
+            Your Saved Stops and Groups
+          </h2>
+
           {savedStops.length === 0 && (
-            <div className="stop-empty">
+            <div className="stop-empty" role="status">
               You haven&apos;t saved any stops yet.
             </div>
           )}
 
           {savedStops.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => handleNavigate(item)}
-              style={{ cursor: "pointer" }}
+            <article 
+              key={item.id} 
+              className="bus-card saved-stop-card"
+              aria-label={`${item.name}, ${item.isGroup ? `group with ${item.stopIds.length} stops` : `stop ${item.stopIds[0]}`}, saved on ${formatSavedDate(item.savedAt)}`}
             >
-              <article className="bus-card">
-                {/* Left pill showing stop count or single stop ID */}
-                <div
-                  className="bus-card-route"
-                  style={{ 
-                    backgroundColor: item.isGroup ? "#8B5CF6" : "#111827",
-                    minWidth: item.isGroup ? "60px" : "50px"
-                  }}
-                >
-                  {item.isGroup 
-                    ? `${item.stopIds.length} stops`
-                    : item.stopIds[0]
-                  }
-                </div>
+              {/* Left pill showing stop count or single stop ID */}
+              <div
+                className="bus-card-route"
+                style={{ 
+                  backgroundColor: item.isGroup ? "#8B5CF6" : "#111827",
+                  minWidth: item.isGroup ? "60px" : "50px",
+                  fontSize: item.isGroup ? "12px" : "20px"
+                }}
+                aria-label={item.isGroup ? `Group with ${item.stopIds.length} stops` : `Stop ${item.stopIds[0]}`}
+              >
+                {item.isGroup 
+                  ? `${item.stopIds.length} stops`
+                  : item.stopIds[0]
+                }
+              </div>
 
-                <div className="bus-card-main">
-                  <div className="bus-card-left">
-                    <div className="bus-card-top">
-                      <div className="bus-card-destination">
-                        {item.name}
-                        {item.isGroup && (
-                          <span style={{ 
-                            marginLeft: "8px", 
-                            fontSize: "12px",
-                            color: "#8B5CF6",
-                            fontWeight: "600"
-                          }}>
-                            GROUP
-                          </span>
-                        )}
-                      </div>
-                      <div className="bus-card-times">
-                        <div className="bus-card-eta">
-                          {formatSavedDate(item.savedAt)}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bus-card-bottom">
-                      <div className="bus-card-occupancy">
-                        <div className="bus-card-dots">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <span key={i} className="occ-dot" />
-                          ))}
-                        </div>
-                        <span className="bus-card-sub">
-                          {item.isGroup
-                            ? `Stops: ${item.stopIds.join(', ')}`
-                            : "Tap to view arrivals"
-                          }
+              <div className="bus-card-main">
+                <div className="bus-card-left">
+                  <div className="bus-card-top">
+                    <div className="bus-card-destination">
+                      {item.name}
+                      {item.isGroup && (
+                        <span 
+                          className="group-badge"
+                          aria-label="This is a group"
+                        >
+                          GROUP
                         </span>
+                      )}
+                    </div>
+                    <div className="bus-card-times">
+                      <div className="bus-card-eta">
+                        {formatSavedDate(item.savedAt)}
                       </div>
-                      <div className="bus-card-clock" />
                     </div>
                   </div>
 
-                  <div className="bus-card-right">
-                    <button
-                      className="bus-card-track"
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleNavigate(item);
-                      }}
-                      style={{ marginRight: "8px" }}
-                    >
-                      View
-                    </button>
-                    <button
-                      className="bus-card-track"
-                      type="button"
-                      onClick={(e) => handleDelete(item.id, e)}
-                      style={{
-                        backgroundColor: "#EF4444",
-                        borderColor: "#EF4444"
-                      }}
-                    >
-                      Delete
-                    </button>
+                  <div className="bus-card-bottom">
+                    <div className="bus-card-occupancy">
+                      <div className="bus-card-dots" aria-hidden="true">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <span key={i} className="occ-dot" />
+                        ))}
+                      </div>
+                      <span className="bus-card-sub">
+                        {item.isGroup
+                          ? `Stops: ${item.stopIds.join(', ')}`
+                          : "Tap to view arrivals"
+                        }
+                      </span>
+                    </div>
+                    <div className="bus-card-clock" />
                   </div>
                 </div>
-              </article>
-            </div>
+
+                <div className="bus-card-right">
+                  <button
+                    className="bus-card-track"
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNavigate(item);
+                    }}
+                    style={{ marginRight: "8px" }}
+                    aria-label={`View ${item.name}`}
+                  >
+                    View
+                  </button>
+                  <button
+                    className="bus-card-track bus-card-delete"
+                    type="button"
+                    onClick={(e) => handleDelete(item.id, e)}
+                    aria-label={`Delete ${item.name}`}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </article>
           ))}
         </section>
 
         {/* FOOTER */}
         <footer className="home-footer routes-footer">
           <div className="home-footer-left">
-            <div className="home-logo-small-square" />
+            <div className="home-logo-small-square" aria-hidden="true" />
             <span className="home-footer-brand">badger transit</span>
           </div>
           <div className="home-footer-links">
-            <button className="home-footer-link" type="button">
+            <a 
+              href="mailto:support@badgertransit.com?subject=Bug Report" 
+              className="home-footer-link"
+            >
               report a bug
-            </button>
-            <button className="home-footer-link" type="button">
+            </a>
+            <a 
+              href="/terms" 
+              className="home-footer-link"
+            >
               terms of service
-            </button>
+            </a>
           </div>
           <div className="home-footer-meta">badgertransit ©2026</div>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }

@@ -154,11 +154,15 @@ function HomePage() {
 
   return (
     <main className="home-root">
-      <section className="home-phone">
+      <div className="home-phone">
         {redirectInfo && (
-          <div className="smartlaunch-toast">
+          <div 
+            className="smartlaunch-toast" 
+            role="alert" 
+            aria-live="assertive"
+          >
             <div className="smartlaunch-toast-inner">
-              <div className="smartlaunch-toast-icon-circle">
+              <div className="smartlaunch-toast-icon-circle" aria-hidden="true">
                 <svg className="smartlaunch-progress-svg" viewBox="0 0 88 88">
                   <circle className="bg"></circle>
                   <circle className="fg"></circle>
@@ -172,6 +176,7 @@ function HomePage() {
                 type="button"
                 className="smartlaunch-toast-button"
                 onClick={handleCancelRedirect}
+                aria-label={`Cancel redirect to stop ${redirectInfo.stopId}`}
               >
                 Stop
               </button>
@@ -181,25 +186,23 @@ function HomePage() {
 
         {/* Top bar: logo + time/date + nav */}
         <header className="home-header">
-        <Link to="/" className="routes-header-link">
           <div className="home-header-top">
-            <div className="home-logo">
-              <div className="home-logo-square" />
+            <Link to="/" className="home-logo" aria-label="BadgerTransit Home">
+              <div className="home-logo-square" aria-hidden="true" />
               <div className="home-wordmark">
                 <div className="home-logo-text-main">badger</div>
                 <div className="home-logo-text-sub">transit</div>
               </div>
-            </div>
+            </Link>
 
-            <div className="home-clock">
+            <div className="home-clock" aria-live="off">
               <div className="home-clock-date">{dateString}</div>
               <div className="home-clock-time">{timeString}</div>
             </div>
           </div>
-          </Link>
 
           {/* Tab nav */}
-          <nav className="home-nav">
+          <nav className="home-nav" aria-label="Primary navigation">
             <NavLink
               to="/"
               end
@@ -211,7 +214,7 @@ function HomePage() {
             </NavLink>
 
             <NavLink
-              to="/recent" // hook this up to your timetable page later if you want
+              to="/recent"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -229,7 +232,7 @@ function HomePage() {
             </NavLink>
 
             <NavLink
-              to="/routes" // now points to SmartLaunchPage
+              to="/routes"
               className={({ isActive }) =>
                 `home-nav-tab${isActive ? " home-nav-tab--active" : ""}`
               }
@@ -240,65 +243,62 @@ function HomePage() {
         </header>
 
         {/* Title */}
-        <section className="home-hero">
-          <h1 className="home-hero-title">
+        <section className="home-hero" aria-labelledby="hero-title">
+          <h1 id="hero-title" className="home-hero-title">
             Select an option to begin tracking
           </h1>
         </section>
 
         {/* Action cards */}
-        <section className="home-card-grid">
+        <section className="home-card-grid" aria-label="Quick actions">
           <Link to="/recent" className="home-card">
-            <div className="home-card-icon home-card-icon-star" />
+            <div className="home-card-icon home-card-icon-star" aria-hidden="true" />
             <p className="home-card-title">View your recently visited stops</p>
           </Link>
 
-          <Link to="/stop/10070" className="home-card">
-            <div className="home-card-icon home-card-icon-map" />
+          <Link to="/map" className="home-card">
+            <div className="home-card-icon home-card-icon-map" aria-hidden="true" />
             <p className="home-card-title">Select a stop from MapView</p>
           </Link>
 
           <Link to="/map" className="home-card">
-            <div className="home-card-icon home-card-icon-location" />
+            <div className="home-card-icon home-card-icon-location" aria-hidden="true" />
             <p className="home-card-title">See nearby bus stops</p>
           </Link>
 
-          <Link to="/saved" className="home-card">  {/* Change from <div> to <Link> */}
-            <div className="home-card-icon home-card-icon-saved" />
+          <Link to="/saved" className="home-card">
+            <div className="home-card-icon home-card-icon-saved" aria-hidden="true" />
             <p className="home-card-title">View your saved stops and groups</p>
-          </Link>  {/* Change closing tag */}
+          </Link>
 
           <Link to="/routes" className="home-card">
-            <div className="home-card-icon home-card-icon-search" />
+            <div className="home-card-icon home-card-icon-search" aria-hidden="true" />
             <p className="home-card-title">Search for stop by Stop ID</p>
           </Link>
 
           <Link to="/routes" className="home-card">
-            <div className="home-card-icon home-card-icon-routes" />
+            <div className="home-card-icon home-card-icon-routes" aria-hidden="true" />
             <p className="home-card-title">See live bus locations by route</p>
           </Link>
         </section>
 
-        {/* Title */}
-        <section className="home-hero">
-          <h1 className="home-hero-title">User Settings</h1>
+        {/* User Settings Section */}
+        <section className="home-hero" aria-labelledby="settings-title">
+          <h2 id="settings-title" className="home-hero-title">User Settings</h2>
         </section>
 
-        {/* Action cards */}
-        <section className="home-card-grid">
+        {/* Settings card */}
+        <section className="home-card-grid" aria-label="User settings">
           <Link to="/settings" className="home-card">
-            <div className="home-card-icon home-card-icon-launch" />
+            <div className="home-card-icon home-card-icon-launch" aria-hidden="true" />
             <p className="home-card-title">Configure SmartLaunch</p>
           </Link>
         </section>
 
         {/* Notice blocks */}
-        <section className="home-notice">
-          <h2 className="home-notice-title">
-            Important Notice:
-            <br />
-            <br />
-            BadgerTransit is designed for experienced Madison Transit riders.
+        <section className="home-notice" aria-labelledby="notice-title">
+          <h2 id="notice-title" className="home-notice-title">
+            Important Notice: BadgerTransit is designed for experienced Madison Transit riders.
           </h2>
           <p className="home-notice-body">
             BadgerTransit does not provide navigation. Users are expected to
@@ -306,11 +306,11 @@ function HomePage() {
           </p>
         </section>
 
-        <section className="home-notice secondary">
-          <p className="home-notice-title">
+        <section className="home-notice secondary" aria-labelledby="about-title">
+          <h3 id="about-title" className="home-notice-title">
             BadgerTransit uses an open source Madison API to obtain bus
             information.
-          </p>
+          </h3>
           <p className="home-notice-body">
             Designed, coded and used by transit riders in Madison, WI.
           </p>
@@ -319,22 +319,28 @@ function HomePage() {
         {/* Footer */}
         <footer className="home-footer">
           <div className="home-footer-left">
-            <div className="home-logo-small-square" />
+            <div className="home-logo-small-square" aria-hidden="true" />
             <span className="home-footer-brand">badger transit</span>
           </div>
           <div className="home-footer-links">
-            <button className="home-footer-link" type="button">
+            <a 
+              href="mailto:support@badgertransit.com?subject=Bug Report" 
+              className="home-footer-link"
+            >
               report a bug
-            </button>
-            <button className="home-footer-link" type="button">
+            </a>
+            <a 
+              href="/terms" 
+              className="home-footer-link"
+            >
               terms of service
-            </button>
+            </a>
           </div>
           <div className="home-footer-meta">
             badgertransit ©2026 built for CS571
           </div>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }
@@ -354,7 +360,7 @@ export default function App() {
       <Route path="/routes" element={<RoutesPage />} />
       <Route path="/stop/:stopId" element={<StopPage />} />
       <Route path="/recent" element={<RecentPage />} />
-      <Route path="/saved" element={<SavedPage />} />  {/* ADD THIS LINE */}
+      <Route path="/saved" element={<SavedPage />} />
       {/* Settings -> SmartLaunch */}
       <Route path="/settings" element={<SmartLaunchPage />} />
       <Route path="*" element={<HomePage />} />

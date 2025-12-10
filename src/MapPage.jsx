@@ -81,10 +81,14 @@ function TrackBusCard({ pred }) {
   const occDots = getOccupancyDots(pred.occupancy || "");
 
   return (
-    <article className="bus-card">
+    <article 
+      className="bus-card"
+      aria-label={`Route ${pred.route} to ${pred.destination}, arriving in ${pred.eta_minutes} minutes`}
+    >
       <div
         className="bus-card-route"
         style={{ backgroundColor: getRouteColor(pred.route) }}
+        aria-label={`Route ${pred.route}`}
       >
         {pred.route}
       </div>
@@ -95,7 +99,7 @@ function TrackBusCard({ pred }) {
           <div className="bus-card-top">
             <div className="bus-card-destination">{pred.destination}</div>
             <div className="bus-card-times">
-              <div className="bus-card-eta">
+              <div className="bus-card-eta" aria-label={`Estimated time: ${pred.eta_minutes} minutes`}>
                 {pred.eta_minutes != null ? `${pred.eta_minutes} min` : "--"}
               </div>
             </div>
@@ -104,13 +108,14 @@ function TrackBusCard({ pred }) {
           {/* second row */}
           <div className="bus-card-bottom">
             <div className="bus-card-occupancy">
-              <div className="bus-card-dots">
+              <div className="bus-card-dots" aria-label={`Occupancy: ${pred.occupancy || "unknown"}`}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <span
                     key={i}
                     className={
                       "occ-dot" + (i < occDots ? " occ-dot-filled" : "")
                     }
+                    aria-hidden="true"
                   />
                 ))}
               </div>
@@ -123,7 +128,7 @@ function TrackBusCard({ pred }) {
         </div>
 
         <div className="bus-card-right">
-          <div className="bus-card-track bus-card-track--inactive">
+          <div className="bus-card-track bus-card-track--inactive" aria-label="Currently tracking this bus">
             Tracking
           </div>
         </div>
@@ -357,6 +362,7 @@ function MapPage() {
 
   // Create a SmartLaunch rule at current map center
   const handleCreateSmartLaunch = () => {
+    // TODO: Replace with accessible modal dialog
     const stopIdInput = window.prompt(
       "Enter stop ID to auto-open when inside this circle:",
       stopId || ""
@@ -406,6 +412,7 @@ function MapPage() {
     
     // Don't add if already in list
     if (currentStops.includes(clickedStopId)) {
+      // TODO: Replace with accessible notification
       alert(`Stop ${clickedStopId} is already added to your group!`);
       return;
     }
@@ -421,28 +428,26 @@ function MapPage() {
 
   return (
     <main className="home-root">
-      <section className="home-phone">
+      <div className="home-phone">
         {/* HEADER */}
         <header className="home-header">
-          <Link to="/" className="routes-header-link">
-            <div className="home-header-top">
-              <div className="home-logo">
-                <div className="home-logo-square" />
-                <div className="home-wordmark">
-                  <div className="home-logo-text-main">badger</div>
-                  <div className="home-logo-text-sub">transit</div>
-                </div>
+          <div className="home-header-top">
+            <Link to="/" className="home-logo" aria-label="BadgerTransit Home">
+              <div className="home-logo-square" aria-hidden="true" />
+              <div className="home-wordmark">
+                <div className="home-logo-text-main">badger</div>
+                <div className="home-logo-text-sub">transit</div>
               </div>
+            </Link>
 
-              <div className="home-clock">
-                <div className="home-clock-date">{dateString}</div>
-                <div className="home-clock-time">{timeString}</div>
-              </div>
+            <div className="home-clock" aria-live="off">
+              <div className="home-clock-date">{dateString}</div>
+              <div className="home-clock-time">{timeString}</div>
             </div>
-          </Link>
+          </div>
 
           {/* Tab nav */}
-          <nav className="home-nav">
+          <nav className="home-nav" aria-label="Primary navigation">
             <NavLink
               to="/"
               end
@@ -484,12 +489,17 @@ function MapPage() {
 
         {/* OVERLAYS */}
         {selectMode && (
-          <div className="map-overlay map-select-mode">
+          <div 
+            className="map-overlay map-select-mode" 
+            role="alert" 
+            aria-live="polite"
+          >
             <div className="map-select-banner">
               <span>🎯 Select a stop to add to your group</span>
               <button 
                 onClick={() => navigate(returnTo)} 
                 className="map-select-cancel"
+                aria-label="Cancel stop selection"
               >
                 Cancel
               </button>
@@ -498,22 +508,38 @@ function MapPage() {
         )}
 
         {isRouteMode && routeLoading && (
-          <div className="map-overlay">Loading route {routeId}…</div>
+          <div className="map-overlay" role="status" aria-live="polite">
+            Loading route {routeId}…
+          </div>
         )}
         {isRouteMode && routeError && (
-          <div className="map-overlay map-overlay-error">{routeError}</div>
+          <div className="map-overlay map-overlay-error" role="alert" aria-live="assertive">
+            {routeError}
+          </div>
         )}
 
         {isTrackMode && trackLoading && (
-          <div className="map-overlay">
+          <div className="map-overlay" role="status" aria-live="polite">
             Tracking bus {vehicleId} from stop {stopId}…
           </div>
         )}
         {isTrackMode && trackError && (
-          <div className="map-overlay map-overlay-error">{trackError}</div>
+          <div className="map-overlay map-overlay-error" role="alert" aria-live="assertive">
+            {trackError}
+          </div>
         )}
 
-        <section className="map-page-main">
+        <section className="map-page-main" aria-labelledby="map-title">
+          <h1 id="map-title" className="visually-hidden">
+            {isTrackMode 
+              ? `Tracking bus ${vehicleId} from stop ${stopId}` 
+              : isRouteMode 
+              ? `Route ${routeId} map view`
+              : selectMode
+              ? "Select a stop to add to group"
+              : "Transit map view"}
+          </h1>
+
           <div className="map-page-map-wrapper">
             <MapView
               onLoad={() => setIsMapLoaded(true)}
@@ -522,6 +548,7 @@ function MapPage() {
                 const { lat, lng } = evt.lngLat;
                 setSmartCenter({ lat, lon: lng });
               }}
+              aria-label="Interactive transit map showing bus stops and routes"
             >
               {isMapLoaded && (
                 <>
@@ -561,7 +588,13 @@ function MapPage() {
                       latitude={trackBusPosition.latitude}
                       anchor="center"
                     >
-                      <div className="tracked-bus-marker">🚌</div>
+                      <div 
+                        className="tracked-bus-marker" 
+                        role="img" 
+                        aria-label={`Bus ${vehicleId} current location`}
+                      >
+                        🚌
+                      </div>
                     </Marker>
                   )}
 
@@ -599,15 +632,24 @@ function MapPage() {
               type="button"
               className="map-page-back-btn"
               onClick={() => navigate(-1)}
+              aria-label="Go back to previous page"
             >
               ←
             </button>
 
-            <button type="button" className="map-page-center-btn">
+            <button 
+              type="button" 
+              className="map-page-center-btn"
+              aria-label="Center map on your location"
+            >
               ⊙
             </button>
 
-            <button type="button" className="map-page-locate-btn">
+            <button 
+              type="button" 
+              className="map-page-locate-btn"
+              aria-label="Show your current location"
+            >
               ➤
             </button>
 
@@ -616,6 +658,7 @@ function MapPage() {
                 type="button"
                 className="map-smartlaunch-btn"
                 onClick={handleCreateSmartLaunch}
+                aria-label="Create SmartLaunch rule at current map location"
               >
                 + SmartLaunch here
               </button>
@@ -624,7 +667,8 @@ function MapPage() {
 
           {/* Bus card at bottom when tracking */}
           {isTrackMode && trackPred && (
-            <section className="map-track-card">
+            <section className="map-track-card" aria-labelledby="tracking-title">
+              <h2 id="tracking-title" className="visually-hidden">Currently Tracking Bus</h2>
               <TrackBusCard pred={trackPred} />
             </section>
           )}
@@ -633,20 +677,26 @@ function MapPage() {
         {/* FOOTER */}
         <footer className="home-footer">
           <div className="home-footer-left">
-            <div className="home-logo-small-square" />
+            <div className="home-logo-small-square" aria-hidden="true" />
             <span className="home-footer-brand">badger transit</span>
           </div>
           <div className="home-footer-links">
-            <button className="home-footer-link" type="button">
+            <a 
+              href="mailto:support@badgertransit.com?subject=Bug Report" 
+              className="home-footer-link"
+            >
               report a bug
-            </button>
-            <button className="home-footer-link" type="button">
+            </a>
+            <a 
+              href="/terms" 
+              className="home-footer-link"
+            >
               terms of service
-            </button>
+            </a>
           </div>
           <div className="home-footer-meta">badgertransit ©2026</div>
         </footer>
-      </section>
+      </div>
     </main>
   );
 }

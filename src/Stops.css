@@ -426,3 +426,84 @@
   background: #f3f4f6;
   color: #ef4444;
 }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Update footer links from buttons to anchors */
+.home-footer-link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--text-main);
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+/* Visually hidden for screen readers */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Recent page - make link cards not have text decoration */
+.recent-stop-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+/* View stop label styled like a button but not interactive */
+.bus-card-track-label {
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-family: "Mona Sans";
+  color: #000;
+  display: inline-block;
+}
+
+/* Saved page - group badge styling */
+.group-badge {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #8B5CF6;
+  font-weight: 600;
+}
+
+/* Delete button red styling */
+.bus-card-delete {
+  background-color: #EF4444;
+  border-color: #EF4444;
+  color: white;
+}
+
+.bus-card-delete:hover {
+  background-color: #DC2626;
+  border-color: #DC2626;
+}
+
+/* Saved stop card - not clickable as a whole */
+.saved-stop-card {
+  cursor: default;
+}
