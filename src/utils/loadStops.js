@@ -2,7 +2,13 @@
 import Papa from "papaparse";
 
 export async function loadStops() {
-  const response = await fetch("/p87/public/stops.csv");
+  const url = `${import.meta.env.BASE_URL}stops.csv`; // served from public/
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load stops.csv: ${response.status} ${response.statusText}`);
+  }
+
   const csvText = await response.text();
 
   return new Promise((resolve) => {
