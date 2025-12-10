@@ -8,7 +8,6 @@
     --text-muted: #4b5563;
   }
 
-  
   .home-root {
     min-height: 100vh;
     background: var(--bg);
@@ -512,4 +511,17 @@
   to {
     --progress: 100;
   }
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ff0000; /* red underneath color */
+}
+
+.home-root {
+  min-height: 100vh;
+  background: transparent; /* let body’s red show through */
+  box-sizing: border-box;
 }
