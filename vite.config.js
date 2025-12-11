@@ -5,6 +5,6 @@ export default defineConfig({
   plugins: [react()],
   base: "/p87/",
   build: {
-    outDir: "docs",  // ← Add this line
+    outDir: "docs",  
   },
 });
